@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKSAJ - Ikatan Santri Annuqayah Jawa</title>
+    <!-- 1. LOAD CDN SUPABASE RESMI DI HEAD -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Base Reset & Variables */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --bg-cool-white: #f4f7f6;
+            --yellow-accent: rgba(255, 215, 0, 0.15); 
+            --yellow-solid: #ffcc00;
+            --navy-dark: #0f172a;
+            --text-main: #334155;
+            --white-pure: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-cool-white);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* 1. ULTRA-THIN GLASSMORPHISM HEADER (MOBILE FIRST) */
+        header {
+            background-color: rgba(255, 204, 0, 0.4); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            
+            position: fixed; 
+            top: 12px; 
+            left: 4%;
+            right: 4%;
+            width: 92%; 
+            z-index: 1000;
+            
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 1px solid rgba(230, 184, 0, 0.2);
+            
+            padding: 8px 16px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 10px;
+            
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+
+        header.scroll-down {
+            transform: translateY(-150%); 
+            opacity: 0;
+        }
+
+        header.scroll-up {
+            transform: translateY(0); 
+            opacity: 1;
+            background-color: rgba(255, 204, 0, 0.5); 
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-logo {
+            height: 32px; 
+            width: auto;
+            object-fit: contain;
+        }
+
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1rem; 
+            font-weight: 800;
+            color: var(--navy-dark);
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem; 
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 1001;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background-color: var(--navy-dark);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+
+        nav {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 215, 0, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin-top: 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        nav.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        nav ul {
+            display: flex;
+            flex-direction: column;
+            list-style: none;
+            gap: 12px;
+            text-align: center;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--navy-dark);
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: block;
+            padding: 8px 0;
+        }
+
+        /* 2. HERO SECTION */
+        .hero {
+            width: 100%;
+            display: block;
+            position: relative;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 5%;
+        }
+
+        section {
+            margin-bottom: 50px;
+            scroll-margin-top: 100px; 
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 12px;
+            border-left: 4px solid var(--yellow-solid);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* 3. Cards Component (Berita & Karya) */
+        .card {
+            background-color: var(--white-pure);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-bottom: 3px solid var(--yellow-solid);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-tag {
+            display: inline-block;
+            background-color: var(--yellow-accent);
+            color: #b45309;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: var(--navy-dark);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* Loading & Error Feedback Helper */
+        .status-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #64748b;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* 4. Visi Misi Container */
+        .visimisi-box {
+            background: var(--white-pure);
+            border: 1px solid rgba(255, 204, 0, 0.4);
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .visimisi-grid {
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 25px;
+        }
+
+        .vm-item h3 {
+            font-size: 1.2rem;
+            color: var(--navy-dark);
+            margin-bottom: 10px;
+        }
+
+        .vm-item ul {
+            list-style-type: none;
+        }
+
+        .vm-item ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .vm-item ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #b45309;
+            font-weight: bold;
+        }
+
+        /* 5. Footer */
+        footer {
+            background-color: var(--navy-dark);
+            color: #94a3b8;
+            padding: 30px 5% 20px 5%;
+            font-size: 0.85rem;
+            border-top: 4px solid var(--yellow-solid);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .footer-logo-zone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 15px;
+            font-size: 0.75rem;
+        }
+
+        /* --- MEDIA QUERIES --- */
+        @media (min-width: 769px) {
+            header {
+                padding: 10px 30px;
+                top: 20px;
+                left: 5%;
+                right: 5%;
+                width: 90%;
+            }
+            .header-logo {
+                height: 38px;
+            }
+            .brand-title {
+                font-size: 1.1rem;
+            }
+            .brand-subtitle {
+                font-size: 0.75rem;
+            }
+            .menu-toggle {
+                display: none;
+            }
+            nav {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                padding: 0;
+                margin-top: 0;
+                border: none;
+                display: block;
+            }
+            nav ul {
+                flex-direction: row;
+                gap: 25px;
+            }
+            nav ul li a {
+                padding: 0;
+            }
+            .container {
+                padding: 60px 5%;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .visimisi-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+            .footer-content {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER / NAVIGASI -->
+    <header id="smart-header">
+        <div class="header-left">
+            <img src="image/logo/logo.png" alt="Logo IKSAJ" class="header-logo">
+            <div class="brand-info">
+                <span class="brand-title">IKSAJ</span>
+                <span class="brand-subtitle">Ikatan Santri Annuqayah Jawa</span>
+            </div>
+        </div>
+        
+        <button class="menu-toggle" id="menu-btn" aria-label="Buka Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav id="nav-menu">
+            <ul>
+                <li><a href="#berita">Berita</a></li>
+                <li><a href="#karya">Karya</a></li>
+                <li><a href="#visimisi">Visi Misi</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <img src="image/hero/hero.png" alt="Hero Banner IKSAJ" class="hero-img">
+    </section>
+
+    <!-- UTAMA -->
+    <div class="container">
+
+        <!-- BERITA (Konten di-render dinamis dari Supabase) -->
+        <section id="berita">
+            <h2 class="section-title">Berita Terbaru</h2>
+            <div class="grid-3" id="berita-container">
+                <div class="status-msg">Memuat berita terbaru...</div>
+            </div>
+        </section>
+
+        <!-- KARYA (Konten di-render dinamis dari Supabase) -->
+        <section id="karya">
+            <h2 class="section-title">Karya Santri</h2>
+            <div class="grid-3" id="karya-container">
+                <div class="status-msg">Memuat karya santri...</div>
+            </div>
+        </section>
+
+        <!-- VISI MISI -->
+        <section id="visimisi">
+            <h2 class="section-title">Visi &amp; Misi</h2>
+            <div class="visimisi-box">
+                <div class="visimisi-grid">
+                    <div class="vm-item">
+                        <h3>Visi</h3>
+                        <p>Menjadi organisasi wadah santri yang unggul, adaptif, berintegritas berdasarkan nilai kepesantrenan, serta berdampak nyata bagi masyarakat luas.</p>
+                    </div>
+                    <div class="vm-item">
+                        <h3>Misi</h3>
+                        <ul>
+                            <li>Mempererat tali silaturahmi dan ukhuwah antar santri dan alumni di wilayah Jawa.</li>
+                            <li>Menumbuhkan tradisi intelektual, literasi, serta kajian kritis transformatif.</li>
+                            <li>Mengembangkan potensi bakat, minat, dan kemandirian ekonomi organisasi.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo-zone">
+                <img src="image/logo/logo.png" alt="IKSAJ Footer Logo" style="height: 30px; width: auto;">
+                <strong style="color: #fff; margin-left: 10px;">IKSAJ</strong>
+            </div>
+            <div>
+                <span>Kontak: info@iksaj.or.id</span>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Ikatan Santri Annuqayah Jawa. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- INTERAKSI DOM & UI CONTROL -->
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+        const navLinks = document.querySelectorAll('#nav-menu ul li a');
+
+        menuBtn.addEventListener('click', () => {
+            menuBtn.classList.toggle('active');
+            navMenu.classList.toggle('open');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menuBtn.classList.remove('active');
+                navMenu.classList.remove('open');
+            });
+        });
+
+        let lastScrollTop = 0;
+        const header = document.getElementById('smart-header');
+        const delta = 8; 
+
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (navMenu.classList.contains('open')) return;
+            if (Math.abs(lastScrollTop - scrollTop) <= delta) return;
+
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                header.classList.remove('scroll-up');
+                header.classList.add('scroll-down');
+            } else {
+                header.classList.remove('scroll-down');
+                header.classList.add('scroll-up');
+            }
+            lastScrollTop = scrollTop;
+        });
+    </script>
+
+    <!-- 2. INTEGRASI INTEGRAL SUPABASE & KUSTOM FILE AJI.JS -->
+    <script type="module">
+        // Import instance client supabase dari path folder yang kamu tentukan
+        import { supabase } from './adlan_madjied_ridho/aji.js';
+
+        // Fungsi fetch dan render tabel berita
+        async function loadBerita() {
+            const container = document.getElementById('berita-container');
+            
+            const { data: beritaList, error } = await supabase
+                .from('berita')
+                .select('id, judul, ringkasan, kategori, status, created_at')
+                .eq('status', 'Publik') // Mengambil data yang statusnya 'Publik'
+                .order('created_at', { ascending: false })
+                .limit(3); // Membatasi max 3 item untuk tampilan awal grid
+
+            if (error) {
+                console.error('Error Berita:', error.message);
+                container.innerHTML = `<div class="status-msg" style="color: #ef4444;">Gagal memuat berita.</div>`;
+                return;
+            }
+
+            if (beritaList.length === 0) {
+                container.innerHTML = `<div class="status-msg">Belum ada berita yang diterbitkan.</div>`;
+                return;
+            }
+
+            // Bersihkan teks 'loading'
+            container.innerHTML = '';
+
+            // Render loop data menggunakan template literal HTML
+            beritaList.forEach(item => {
+                const cardHTML = `
+                    <div class="card" data-id="${item.id}">
+                        <div class="card-content">
+                            <span class="card-tag">${item.kategori}</span>
+                            <h3 class="card-title">${item.judul}</h3>
+                            <p class="card-desc">${item.ringkasan}</p>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // Fungsi fetch dan render tabel karya
+        async function loadKarya() {
+            const container = document.getElementById('karya-container');
+
+            const { data: karyaList, error } = await supabase
+                .from('karya')
+                .select('id, judul, ringkasan, tipe_karya, status, created_at')
+                .eq('status', 'Publik')
+                .order('created_at', { ascending: false })
+                .limit(3);
+
+            if (error) {
+                console.error('Error Karya:', error.message);
+                container.innerHTML = `<div class="status-msg" style="color: #ef4444;">Gagal memuat karya.</div>`;
+                return;
+            }
+
+            if (karyaList.length === 0) {
+                container.innerHTML = `<div class="status-msg">Belum ada karya santri yang diterbitkan.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            karyaList.forEach(item => {
+                const cardHTML = `
+                    <div class="card" data-id="${item.id}">
+                        <div class="card-content">
+                            <span class="card-tag">${item.tipe_karya}</span>
+                            <h3 class="card-title">${item.judul}</h3>
+                            <p class="card-desc">${item.ringkasan}</p>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // Eksekusi pemanggilan database ketika halaman siap dibuka
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBerita();
+            loadKarya();
+        });
+    </script>
+
+</body>
+</html>
