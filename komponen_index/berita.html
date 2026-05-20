@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; overflow: hidden; }
+        
+        /* Container Utama */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-bottom: 15px;
+        }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        /* Tautan pembungkus utama agar satu kartu berita penuh bisa diklik */
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        /* Gaya Kartu Lancip / Sharp */
+        .card {
+            background-color: #ffffff;
+            border-radius: 0px; 
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card:hover { transform: translateY(-3px); border-bottom: 3px solid #ffcc00; }
+        
+        /* Wadah Gambar Sampul Berita (Lancip) */
+        .card-banner {
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            background-color: #e2e8f0;
+        }
+        
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-content { padding: 20px; flex-grow: 1; }
+        .card-tag {
+            display: inline-block; background-color: rgba(255, 215, 0, 0.15); color: #b45309;
+            font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 0px; margin-bottom: 10px; text-transform: uppercase;
+        }
+        .card-title { font-size: 1.1rem; color: #0f172a; margin-bottom: 8px; font-weight: 700; }
+        
+        /* Batasi Deskripsi Menjadi Tepat 2 Baris Saja */
+        .card-desc { 
+            font-size: 0.9rem; 
+            color: #64748b;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tombol Berita Selengkapnya di Bagian Bawah */
+        .action-zone {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .btn-more {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #0f172a;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 12px 24px;
+            border-radius: 0px; /* Desain tajam/lancip sesuai preferensi */
+            border: 2px solid #0f172a;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .btn-more:hover {
+            background-color: #ffcc00;
+            color: #0f172a;
+            border-color: #ffcc00;
+        }
+
+        .status-msg { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="content-wrapper">
+        <!-- Area Grid Kartu -->
+        <div class="grid-3" id="berita-container">
+            <div class="status-msg">Memuat berita terbaru...</div>
+        </div>
+
+        <!-- Tombol Aksi Menuju Halaman Eksplorasi (Menggunakan target="_top" agar halaman utama yang berpindah) -->
+        <div class="action-zone" id="action-zone" style="display: none;">
+            <a href="eksplor-karya.html" target="_top" class="btn-more">Berita Selengkapnya</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from '/adlan_madjied_ridho/supa.js';
+
+        // Fungsi pembantu untuk mengirimkan tinggi dokumen ke halaman induk (index.html)
+        function sendHeightToParent() {
+            setTimeout(() => {
+                const bodyHeight = document.documentElement.scrollHeight;
+                window.parent.postMessage({
+                    type: 'resize-iframe',
+                    height: bodyHeight
+                }, '*');
+            }, 50);
+        }
+
+        async function loadBerita() {
+            const container = document.getElementById('berita-container');
+            const actionZone = document.getElementById('action-zone');
+            
+            const { data: beritaList, error } = await supabase
+                .from('berita')
+                .select('id, judul, slug, ringkasan, kategori, status, gambar_url, created_at')
+                .or('status.eq.Publik,status.eq.publik') 
+                .order('created_at', { ascending: false })
+                .limit(3);
+
+            if (error) {
+                container.innerHTML = `<div class="status-msg" style="color: #ef4444;">Gagal memuat berita.</div>`;
+                sendHeightToParent();
+                return;
+            }
+
+            if (!beritaList || beritaList.length === 0) {
+                container.innerHTML = `<div class="status-msg">Belum ada berita yang diterbitkan.</div>`;
+                sendHeightToParent();
+                return;
+            }
+
+            container.innerHTML = '';
+            beritaList.forEach(item => {
+                const coverImage = item.gambar_url || '/image/logo/logo.png';
+
+                const cardHTML = `
+                    <a href="detail/berita.html?slug=${item.slug}" target="_top" class="card-link">
+                        <div class="card" data-id="${item.id}">
+                            <div class="card-banner">
+                                <img src="${coverImage}" alt="${item.judul}" class="card-img" loading="lazy" onload="window.triggerIframeResize()">
+                            </div>
+                            <div class="card-content">
+                                <span class="card-tag">${item.kategori || 'Berita'}</span>
+                                <h3 class="card-title">${item.judul}</h3>
+                                <p class="card-desc">${item.ringkasan || ''}</p>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            // Tampilkan tombol selengkapnya jika berita berhasil dimuat
+            actionZone.style.display = 'flex';
+
+            // Kirim kalkulasi tinggi awal
+            sendHeightToParent();
+        }
+
+        window.triggerIframeResize = sendHeightToParent;
+
+        loadBerita();
+
+        window.addEventListener('resize', sendHeightToParent);
+    </script>
+</body>
+</html>

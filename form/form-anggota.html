@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Anggota - IKSAJ</title>
+    <link rel="icon" type="image/png" href="../image/logo/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg-content: #f8fafc;
+            --white-pure: #ffffff;
+            --navy-dark: #0f172a;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --success-color: #16a34a;
+            --danger-color: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-content);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: var(--white-pure);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            padding: 24px;
+        }
+        .header {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+        .header h1 {
+            color: var(--navy-dark);
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+        .btn-back {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        .form-col {
+            flex: 1;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--navy-dark);
+            margin-bottom: 6px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            color: var(--text-main);
+            font-family: inherit;
+            background-color: var(--white-pure);
+        }
+        .form-control:focus {
+            border-color: var(--navy-dark);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--navy-dark);
+            margin: 24px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .avatar-uploader {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px dashed var(--border-color);
+        }
+        .avatar-preview-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .avatar-placeholder {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .btn-submit {
+            width: 100%;
+            background-color: var(--navy-dark);
+            color: var(--white-pure);
+            border: none;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 16px;
+            transition: opacity 0.2s;
+        }
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+        .btn-submit:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="formTitle">Tambah Anggota Baru</h1>
+            <a href="../kelola-anggota.html" class="btn-back">Kembali</a>
+        </div>
+        
+        <form id="anggotaForm">
+            <!-- DATA UTAMA -->
+            <div class="section-title">Identitas Utama</div>
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="nia">Nomor Induk Anggota (NIA) *</label>
+                        <input type="text" id="nia" class="form-control" required placeholder="Contoh: IKSAJ-2026-001">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="nama">Nama Lengkap *</label>
+                        <input type="text" id="nama" class="form-control" required placeholder="Masukkan nama sesuai KTP/Paspor">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="nomor_hp">Nomor HP / WhatsApp</label>
+                        <input type="text" id="nomor_hp" class="form-control" placeholder="Contoh: 081234567890">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="tanggal_lahir">Tanggal Lahir</label>
+                        <input type="date" id="tanggal_lahir" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="file_upload">Foto Profil / Avatar</label>
+                <div class="avatar-uploader">
+                    <div class="avatar-preview-container">
+                        <img id="avatarImg" class="avatar-img" alt="Avatar">
+                        <span id="avatarPlaceholder" class="avatar-placeholder">No Photo</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="file" id="file_upload" class="form-control" accept="image/*">
+                    </div>
+                </div>
+            </div>
+
+            <!-- WILAYAH DAN DOMISILI -->
+            <div class="section-title">Asal Daerah & Pondok</div>
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="desa">Desa *</label>
+                        <input type="text" id="desa" class="form-control" required placeholder="Masukkan nama desa">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="kecamatan">Kecamatan *</label>
+                        <input type="text" id="kecamatan" class="form-control" required placeholder="Masukkan nama kecamatan">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="kota">Kabupaten / Kota *</label>
+                        <input type="text" id="kota" class="form-control" required placeholder="Contoh: Jombang, Kediri">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="pondok_komplek">Pondok / Komplek</label>
+                        <input type="text" id="pondok_komplek" class="form-control" placeholder="Contoh: Pondok Pesantren H, Komplek X">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATRIBUT ORGANISASI -->
+            <div class="section-title">Informasi Keanggotaan</div>
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="jabatan">Jabatan</label>
+                        <input type="text" id="jabatan" class="form-control" placeholder="Kosongkan jika default 'Anggota'">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="status_aktif">Status Aktif</label>
+                        <select id="status_aktif" class="form-control">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Non-Aktif">Non-Aktif</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="tahun_masuk">Tahun Masuk (Angkatan)</label>
+                        <input type="number" id="tahun_masuk" class="form-control" placeholder="Contoh: 2024">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="tahun_keluar">Tahun Keluar / Alumni</label>
+                        <input type="number" id="tahun_keluar" class="form-control" placeholder="Isi jika sudah alumni">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Biografi Singkat (Bio)</label>
+                <textarea id="bio" class="form-control" placeholder="Tulis deskripsi atau kutipan singkat mengenai anggota..."></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="btn-submit">Simpan Data Anggota</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { supabase } from '../adlan_madjied_ridho/supa.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const anggotaId = urlParams.get('id');
+
+        const form = document.getElementById('anggotaForm');
+        const formTitle = document.getElementById('formTitle');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const fileInput = document.getElementById('file_upload');
+        const avatarImg = document.getElementById('avatarImg');
+        const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+
+        let currentAvatarUrl = '';
+
+        // Kompresi Gambar Sisi Klien untuk Avatar (Maksimal Lebar 400px agar hemat storage)
+        function compressAvatar(file, quality = 0.7, maxWidth = 400) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob(resolve, 'image/jpeg', quality);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Jalankan pratinjau ketika file dipilih
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const compressedBlob = await compressAvatar(file);
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    avatarImg.src = ev.target.result;
+                    avatarImg.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(compressedBlob);
+            }
+        });
+
+        // Proses unggah ke avatar-anggota
+        async function uploadAvatar(fileBlob) {
+            const fileName = `avatar-${Date.now()}.jpg`;
+            const { data, error } = await supabase.storage.from('avatar-anggota').upload(fileName, fileBlob, {
+                contentType: 'image/jpeg'
+            });
+            if (error) throw error;
+            
+            const { data: publicData } = supabase.storage.from('avatar-anggota').getPublicUrl(fileName);
+            return publicData.publicUrl;
+        }
+
+        // Ambil data jika dalam mode EDIT (?id=xxxx)
+        async function loadAnggotaData() {
+            if (!anggotaId) return;
+            formTitle.textContent = 'Edit Data Anggota';
+            btnSubmit.textContent = 'Perbarui Anggota';
+            
+            document.getElementById('nia').setAttribute('readonly', true);
+            document.getElementById('nia').style.backgroundColor = '#f1f5f9';
+
+            try {
+                const { data, error } = await supabase.from('anggota').select('*').eq('id', anggotaId).single();
+                if (error) throw error;
+
+                document.getElementById('nia').value = data.nia || '';
+                document.getElementById('nama').value = data.nama || '';
+                document.getElementById('nomor_hp').value = data.nomor_hp || '';
+                document.getElementById('tanggal_lahir').value = data.tanggal_lahir || '';
+                document.getElementById('desa').value = data.desa || '';
+                document.getElementById('kecamatan').value = data.kecamatan || '';
+                document.getElementById('kota').value = data.kota || '';
+                document.getElementById('pondok_komplek').value = data.pondok_komplek || '';
+                document.getElementById('jabatan').value = data.jabatan || '';
+                document.getElementById('status_aktif').value = data.status_aktif || 'Aktif';
+                document.getElementById('tahun_masuk').value = data.tahun_masuk || '';
+                document.getElementById('tahun_keluar').value = data.tahun_keluar || '';
+                document.getElementById('bio').value = data.bio || '';
+
+                currentAvatarUrl = data.avatar_url || '';
+                if (currentAvatarUrl) {
+                    avatarImg.src = currentAvatarUrl;
+                    avatarImg.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                }
+            } catch (err) {
+                console.error("Gagal memuat data anggota:", err);
+                alert("Data tidak ditemukan atau gagal dimuat.");
+            }
+        }
+
+        // Kirim Form data anggota
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnSubmit.disabled = true;
+
+            try {
+                let avatarUrl = currentAvatarUrl;
+
+                if (fileInput.files.length > 0) {
+                    const compressedBlob = await compressAvatar(fileInput.files[0]);
+                    avatarUrl = await uploadAvatar(compressedBlob);
+                }
+
+                const payload = {
+                    nia: document.getElementById('nia').value,
+                    nama: document.getElementById('nama').value,
+                    desa: document.getElementById('desa').value,
+                    kecamatan: document.getElementById('kecamatan').value,
+                    kota: document.getElementById('kota').value,
+                    nomor_hp: document.getElementById('nomor_hp').value || null,
+                    pondok_komplek: document.getElementById('pondok_komplek').value || null,
+                    tahun_masuk: parseInt(document.getElementById('tahun_masuk').value) || null,
+                    tahun_keluar: parseInt(document.getElementById('tahun_keluar').value) || null,
+                    tanggal_lahir: document.getElementById('tanggal_lahir').value || null,
+                    bio: document.getElementById('bio').value || null,
+                    avatar_url: avatarUrl || null,
+                    updated_at: new Date().toISOString()
+                };
+
+                const inputJabatan = document.getElementById('jabatan').value;
+                if (inputJabatan) payload.jabatan = inputJabatan;
+                
+                payload.status_aktif = document.getElementById('status_aktif').value;
+
+                const { error } = anggotaId
+                    ? await supabase.from('anggota').update(payload).eq('id', anggotaId)
+                    : await supabase.from('anggota').insert([payload]);
+
+                if (error) throw error;
+
+                alert(anggotaId ? 'Data berhasil diperbarui!' : 'Anggota baru berhasil ditambahkan!');
+                window.location.href = '../kelola-anggota.html';
+
+            } catch (err) {
+                alert('Gagal menyimpan data: ' + err.message);
+                console.error(err);
+                btnSubmit.disabled = false;
+            }
+        });
+
+        loadAnggotaData();
+    </script>
+</body>
+</html>

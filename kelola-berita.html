@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Berita - IKSAJ</title>
+    <link rel="icon" type="image/png" href="image/logo/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Base Reset & Variables */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-content: #f8fafc;
+            --white-pure: #ffffff;
+            --navy-dark: #0f172a;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --yellow-solid: #ffcc00;
+            --yellow-hover: #e6b800;
+            --border-color: rgba(0, 0, 0, 0.06);
+            --success-color: #16a34a;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-content);
+            color: var(--text-main);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        /* --- HEADER HALAMAN --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-title h1 {
+            color: var(--navy-dark);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        /* --- TOMBOL TAMBAH (SHARP EDGES) --- */
+        .btn-add {
+            background-color: var(--navy-dark);
+            color: var(--white-pure);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+
+        /* --- KONTROL PENCARIAN --- */
+        .search-bar {
+            background-color: var(--white-pure);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            color: var(--text-main);
+        }
+
+        .search-input:focus {
+            border-color: var(--navy-dark);
+        }
+
+        /* --- GRID KARTU BERITA (LANCIP / SHARP) --- */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .news-card {
+            background-color: var(--white-pure);
+            border: 1px solid var(--border-color);
+            border-radius: 6px; /* Sudut tajam & tegas */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .news-cover-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background-color: #e2e8f0;
+        }
+
+        .news-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Badges di Atas Gambar */
+        .card-badges {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-status-publish { background-color: var(--success-color); color: var(--white-pure); }
+        .badge-status-draft { background-color: var(--text-muted); color: var(--white-pure); }
+        .badge-category { background-color: rgba(15, 23, 42, 0.85); color: var(--white-pure); backdrop-filter: blur(4px); }
+
+        /* Konten Kartu */
+        .news-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .news-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .news-title {
+            color: var(--navy-dark);
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Tombol Aksi Bawah */
+        .card-actions {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-edit {
+            background-color: var(--yellow-solid);
+            color: var(--navy-dark);
+        }
+
+        .btn-edit:hover {
+            background-color: var(--yellow-hover);
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            border-color: #cbd5e1;
+            color: var(--danger-color);
+        }
+
+        .btn-delete:hover {
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        .loading-text {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER MANAJEMEN BERITA -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1>Manajemen Berita</h1>
+            <p>Tulis, edit, dan publikasikan artikel atau pengumuman resmi seputar IKSAJ.</p>
+        </div>
+        <a href="form/form-berita.html" class="btn-add">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tulis Berita
+        </a>
+    </div>
+
+    <!-- BILAH PENCARIAN -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari judul berita, kategori, atau kata kunci...">
+    </div>
+
+    <!-- GRID ARTIKEL BERITA -->
+    <div id="newsGrid" class="news-grid">
+        <div class="loading-text">Memuat data berita...</div>
+    </div>
+
+    <script type="module">
+        // Import koneksi Supabase Anda
+        import { supabase } from './adlan_madjied_ridho/supa.js';
+
+        const newsGrid = document.getElementById('newsGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        // Fungsi format tanggal (e.g., 20 Mei 2026)
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Fungsi mengambil & menampilkan list berita
+        async function fetchBerita(keyword = '') {
+            try {
+                let query = supabase
+                    .from('berita')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                // Jika ada kata kunci pencarian
+                if (keyword.trim() !== '') {
+                    query = query.or(`judul.ilike.%${keyword}%,kategori.ilike.%${keyword}%`);
+                }
+
+                const { data: beritaList, error } = await query;
+
+                if (error) throw error;
+
+                if (!beritaList || beritaList.length === 0) {
+                    newsGrid.innerHTML = '<div class="loading-text">Tidak ada berita ditemukan.</div>';
+                    return;
+                }
+
+                newsGrid.innerHTML = '';
+
+                beritaList.forEach(berita => {
+                    const coverImg = berita.gambar_url || 'https://via.placeholder.com/400x180?text=No+Image';
+                    const isPublish = berita.status && berita.status.toLowerCase() === 'terbit';
+                    const badgeStatusClass = isPublish ? 'badge-status-publish' : 'badge-status-draft';
+                    const badgeStatusText = berita.status || 'Draf';
+                    
+                    const cardHTML = `
+                        <div class="news-card" data-id="${berita.id}">
+                            <div class="news-cover-container">
+                                <img src="${coverImg}" alt="${berita.judul}" class="news-cover" onerror="this.src='https://via.placeholder.com/400x180?text=No+Image'">
+                                <div class="card-badges">
+                                    <span class="badge ${badgeStatusClass}">${badgeStatusText}</span>
+                                    <span class="badge badge-category">${berita.kategori || 'Umum'}</span>
+                                </div>
+                            </div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span>${formatDate(berita.created_at)}</span>
+                                    <span>Oleh: ${berita.penulis || 'Admin'}</span>
+                                </div>
+                                <h2 class="news-title">${berita.judul}</h2>
+                                <div class="card-actions">
+                                    <a href="form/form-berita.html?id=${berita.id}" class="btn-action btn-edit">Edit</a>
+                                    <button class="btn-action btn-delete" data-id="${berita.id}" data-judul="${berita.judul}">Hapus</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    newsGrid.insertAdjacentHTML('beforeend', cardHTML);
+                });
+
+                // Pasang event listener ke seluruh tombol hapus baru
+                initDeleteButtons();
+
+            } catch (err) {
+                console.error(err);
+                newsGrid.innerHTML = `<div class="loading-text" style="color:var(--danger-color)">Gagal memuat data: ${err.message}</div>`;
+            }
+        }
+
+        // Fungsi hapus data berita
+        function initDeleteButtons() {
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const judul = e.currentTarget.dataset.judul;
+
+                    if (confirm(`Apakah Anda yakin ingin menghapus berita: "${judul}"?`)) {
+                        try {
+                            const { error } = await supabase
+                                .from('berita')
+                                .delete()
+                                .eq('id', id);
+
+                            if (error) throw error;
+
+                            // Refresh data setelah berhasil dihapus
+                            fetchBerita(searchInput.value);
+                        } catch (err) {
+                            alert('Gagal menghapus berita: ' + err.message);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Fitur Live Search dengan Debounce ringan
+        let searchTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                fetchBerita(searchInput.value);
+            }, 300);
+        });
+
+        // Inisialisasi awal pemuatan data saat halaman dibuka
+        fetchBerita();
+    </script>
+</body>
+</html>
