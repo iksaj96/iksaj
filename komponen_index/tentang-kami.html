@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --yellow-solid: #ffcc00; --navy-dark: #0f172a; --text-main: #334155; --bg-white: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: transparent; color: var(--text-main); line-height: 1.8; padding: 20px 0; }
+
+        .about-card { background: var(--bg-white); border: 1px solid #e2e8f0; padding: 40px; border-radius: 0px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .section-header { margin-bottom: 30px; border-left: 4px solid var(--yellow-solid); padding-left: 15px; }
+        .section-header h2 { font-size: 2rem; color: var(--navy-dark); font-weight: 800; }
+        
+        .content-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .content-block h3 { color: var(--navy-dark); margin-bottom: 10px; font-size: 1.2rem; }
+        .content-block p { font-size: 1rem; color: #475569; }
+
+        @media (min-width: 769px) {
+            .content-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="about-card">
+        <div class="section-header">
+            <h2>Tentang IKSAJ</h2>
+        </div>
+        
+        <div class="content-grid">
+            <div class="content-block">
+                <h3>Visi Kami</h3>
+                <p>Menjadi wadah sinergis bagi santri Annuqayah di tanah Jawa untuk mengembangkan potensi intelektual, karya kreatif, dan mempererat tali persaudaraan dalam bingkai keislaman yang moderat.</p>
+            </div>
+            <div class="content-block">
+                <h3>Misi Kami</h3>
+                <p>1. Memfasilitasi pengembangan bakat santri di bidang literasi dan teknologi.<br>
+                   2. Membangun jejaring komunikasi antaralumni santri Annuqayah di wilayah Jawa.<br>
+                   3. Menjadi pusat informasi dan syiar kegiatan santri yang relevan dengan perkembangan zaman.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Skrip untuk auto-resize iframe agar sinkron dengan index.html
+        function sendHeight() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({ type: 'resize-iframe', height: height }, '*');
+        }
+        window.addEventListener('load', sendHeight);
+        window.addEventListener('resize', sendHeight);
+    </script>
+</body>
+</html>

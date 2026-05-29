@@ -12,25 +12,8 @@
         :root { --bg-cool-white: #f4f7f6; --yellow-solid: #ffcc00; --navy-dark: #0f172a; --text-main: #334155; --white-pure: #ffffff; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-cool-white); color: var(--text-main); line-height: 1.6; }
 
-        /* GLASSMORPHISM HEADER */
-        header { background-color: rgba(255, 204, 0, 0.4); backdrop-filter: blur(16px); position: fixed; top: 12px; left: 4%; right: 4%; width: 92%; z-index: 1000; border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-radius: 10px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
-        header.scroll-down { transform: translateY(-150%); opacity: 0; }
-        header.scroll-up { transform: translateY(0); opacity: 1; background-color: rgba(255, 204, 0, 0.5); }
-
-        .header-left { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .header-logo { height: 32px; width: auto; object-fit: contain; }
-        .brand-info { display: flex; flex-direction: column; }
-        .brand-title { font-size: 1rem; font-weight: 800; color: var(--navy-dark); line-height: 1.1; }
-        .brand-subtitle { font-size: 0.65rem; color: #475569; font-weight: 600; }
-        .secret-gate { text-decoration: none; color: inherit; cursor: default; }
-
-        .menu-toggle { display: flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 1001; }
-        .menu-toggle span { display: block; width: 22px; height: 2px; background-color: var(--navy-dark); transition: all 0.3s ease; }
-
-        nav { position: absolute; top: 100%; left: 0; right: 0; background-color: rgba(255, 215, 0, 0.95); backdrop-filter: blur(20px); margin-top: 8px; border-radius: 10px; padding: 15px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; }
-        nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
-        nav ul { display: flex; flex-direction: column; list-style: none; gap: 12px; text-align: center; }
-        nav ul li a { text-decoration: none; color: var(--navy-dark); font-weight: 700; display: block; }
+        /* HEADER CONTAINER */
+        #header-placeholder { width: 100%; display: block; }
 
         /* HERO SECTION */
         .hero { width: 100%; display: block; }
@@ -40,41 +23,13 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 5%; }
         section { margin-bottom: 50px; }
         
-        .section-title { font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 20px; position: relative; padding-left: 12px; border-left: 4px solid var(--yellow-solid); }
-
+        .section-title { font-size: 1.5rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 20px; border-left: 4px solid var(--yellow-solid); padding-left: 12px; }
         .section-iframe { width: 100%; border: none; overflow: hidden; background: transparent; transition: height 0.25s ease; }
-
-        @media (min-width: 769px) {
-            header { padding: 10px 30px; top: 20px; left: 5%; right: 5%; width: 90%; }
-            .menu-toggle { display: none; }
-            nav { position: static; opacity: 1; visibility: visible; transform: none; background: none; padding: 0; display: block; }
-            nav ul { flex-direction: row; gap: 25px; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
-    <header id="smart-header">
-        <div class="header-left" onclick="window.location.href='index.html'">
-            <img src="image/logo/logo.png" alt="Logo IKSAJ" class="header-logo">
-            <div class="brand-info">
-                <span class="brand-title">IKSAJ</span>
-                <span class="brand-subtitle">Ikatan Santri Annuqayah <a href="/admin.html" class="secret-gate">Jawa</a></span>
-            </div>
-        </div>
-        
-        <button class="menu-toggle" id="menu-btn" aria-label="Buka Menu">
-            <span></span><span></span><span></span>
-        </button>
-
-        <nav id="nav-menu">
-            <ul>
-                <li><a href="/komponen_index/eksplor-berita.html">Eksplor Berita</a></li>
-                <li><a href="/komponen_index/eksplor-karya.html">Eksplor Karya</a></li>
-            </ul>
-        </nav>
-    </header>
+    <div id="header-placeholder"></div>
 
     <section class="hero">
         <img src="image/hero/hero.png" alt="Hero Banner IKSAJ" class="hero-img">
@@ -90,39 +45,48 @@
             <h2 class="section-title">Karya Santri</h2>
             <iframe src="komponen_index/karya.html" class="section-iframe" scrolling="no"></iframe>
         </section>
+
+        <section id="tentang-kami">
+            <h2 class="section-title">Tentang Kami</h2>
+            <iframe src="komponen_index/tentang-kami.html" class="section-iframe" scrolling="no"></iframe>
+        </section>
+
+        <section id="sejarah">
+            <h2 class="section-title">Sejarah</h2>
+            <iframe src="komponen_index/sejarah.html" class="section-iframe" scrolling="no"></iframe>
+        </section>
     </div>
 
-    <!-- FOOTER IFRAME -->
     <iframe src="komponen_index/footer.html" class="section-iframe" scrolling="no" style="margin-top: 50px;"></iframe>
 
     <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const navMenu = document.getElementById('nav-menu');
-        
-        menuBtn.addEventListener('click', () => { navMenu.classList.toggle('open'); });
+        // Memuat header secara dinamis
+        fetch('/komponen_index/header.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('header-placeholder').innerHTML = data;
+                initHeader();
+            });
 
-        let lastScrollTop = 0;
-        const header = document.getElementById('smart-header');
-        window.addEventListener('scroll', () => {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (navMenu.classList.contains('open')) return;
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                header.classList.remove('scroll-up'); header.classList.add('scroll-down');
-            } else {
-                header.classList.remove('scroll-down'); header.classList.add('scroll-up');
-            }
-            lastScrollTop = scrollTop;
-        });
-
-        window.addEventListener('message', function(e) {
-            if (e.data && e.data.type === 'resize-iframe') {
-                document.querySelectorAll('.section-iframe').forEach(iframe => {
-                    if (iframe.contentWindow === e.source) {
-                        iframe.style.height = e.data.height + 'px';
-                    }
+        function initHeader() {
+            const menuBtn = document.getElementById('menu-btn');
+            const navMenu = document.getElementById('nav-menu');
+            
+            if (menuBtn) {
+                menuBtn.addEventListener('click', () => {
+                    navMenu.classList.toggle('open');
                 });
             }
-        }, false);
+            // Logika scroll-hide dihapus agar header statis
+        }
+
+        window.addEventListener('message', e => {
+            if (e.data?.type === 'resize-iframe') {
+                document.querySelectorAll('.section-iframe').forEach(iframe => {
+                    if (iframe.contentWindow === e.source) iframe.style.height = e.data.height + 'px';
+                });
+            }
+        });
     </script>
 </body>
 </html>

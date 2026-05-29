@@ -7,61 +7,79 @@
     <link rel="icon" type="image/png" href="/image/logo/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --bg-cool-white: #f4f7f6; --yellow-solid: #ffcc00; --navy-dark: #0f172a; --text-main: #334155; --white-pure: #ffffff; --border-color: #e2e8f0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-cool-white); color: var(--text-main); line-height: 1.6; }
+<style>
+    /* 1. Base Reset & Variables */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { 
+        --bg-cool-white: #f4f7f6; 
+        --maroon-dark: #4a0404; 
+        --gold-main: #ffcc00; 
+        --navy-dark: #0f172a; 
+        --text-main: #334155; 
+        --white-pure: #ffffff; 
+        --border-color: #e2e8f0; 
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-cool-white); color: var(--text-main); line-height: 1.6; }
 
-        /* HEADER (Sama Persis Eksplor Berita) */
-        header { background-color: rgba(255, 204, 0, 0.4); backdrop-filter: blur(16px); position: fixed; top: 12px; left: 4%; right: 4%; width: 92%; z-index: 1000; border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-radius: 10px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
-        header.scroll-down { transform: translateY(-150%); opacity: 0; }
-        header.scroll-up { transform: translateY(0); opacity: 1; background-color: rgba(255, 204, 0, 0.5); }
+    /* 2. Header (Sesuai Desain Baru) */
+    header { 
+        background-color: var(--maroon-dark); 
+        width: 100%; 
+        border-bottom: 3px solid var(--gold-main); 
+        padding: 15px 20px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        color: var(--white-pure);
+        position: relative;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .header-logo { height: 35px; width: auto; }
+    .brand-title { font-size: 1.1rem; font-weight: 800; color: var(--gold-main); }
+    .brand-subtitle { font-size: 0.7rem; color: #e2e8f0; text-transform: uppercase; }
+    .secret-gate { text-decoration: none; color: rgba(255, 255, 255, 0.3); }
 
-        .header-left { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .header-logo { height: 32px; width: auto; object-fit: contain; }
-        .brand-info { display: flex; flex-direction: column; }
-        .brand-title { font-size: 1rem; font-weight: 800; color: var(--navy-dark); line-height: 1.1; }
-        .brand-subtitle { font-size: 0.65rem; color: #475569; font-weight: 600; }
-        .secret-gate { text-decoration: none; color: inherit; cursor: default; }
+    /* 3. Menu Mobile */
+    .menu-toggle { display: flex; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; }
+    .menu-toggle span { display: block; width: 25px; height: 3px; background-color: var(--gold-main); border-radius: 2px; }
+    
+    nav { position: absolute; top: 100%; left: 0; right: 0; background-color: var(--maroon-dark); padding: 20px; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 1000; border-bottom: 2px solid var(--gold-main); }
+    nav.open { opacity: 1; visibility: visible; }
+    nav ul { list-style: none; display: flex; flex-direction: column; gap: 15px; text-align: center; }
+    nav ul li a { text-decoration: none; color: var(--white-pure); font-weight: 600; }
 
-        .menu-toggle { display: flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 4px; z-index: 1001; }
-        .menu-toggle span { display: block; width: 22px; height: 2px; background-color: var(--navy-dark); transition: all 0.3s ease; }
+    /* 4. Explore Hero */
+    .explore-hero { background-color: var(--white-pure); padding: 60px 5%; text-align: center; border-bottom: 1px solid var(--border-color); }
+    .explore-hero h1 { font-size: 2rem; color: var(--navy-dark); margin-bottom: 10px; }
 
-        nav { position: absolute; top: 100%; left: 0; right: 0; background-color: rgba(255, 215, 0, 0.95); backdrop-filter: blur(20px); margin-top: 8px; border-radius: 10px; padding: 15px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; }
-        nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
-        nav ul { display: flex; flex-direction: column; list-style: none; gap: 12px; text-align: center; }
-        nav ul li a { text-decoration: none; color: var(--navy-dark); font-weight: 700; display: block; }
+    /* 5. Search & Filter */
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 5%; }
+    .search-filter-zone { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+    .search-box { width: 100%; padding: 12px 20px; border: 2px solid var(--border-color); border-radius: 8px; outline: none; transition: 0.3s; }
+    .search-box:focus { border-color: var(--gold-main); }
+    
+    .filter-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag-btn { background: var(--white-pure); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
+    .tag-btn.active { background-color: var(--maroon-dark); color: var(--white-pure); border-color: var(--maroon-dark); }
 
-        /* HERO (Ubah Jadi Putih) */
-        .explore-hero { background-color: var(--white-pure); padding: 140px 5% 60px 5%; text-align: center; border-bottom: 1px solid var(--border-color); }
-        .explore-hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--navy-dark); margin-bottom: 10px; }
-        .explore-hero p { color: #64748b; font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    /* 6. Grid Karya */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+    .card { background: var(--white-pure); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; border: 1px solid var(--border-color); }
+    .card:hover { transform: translateY(-8px); border-color: var(--gold-main); }
+    .card-banner { height: 190px; background: #ddd; }
+    .card-img { width: 100%; height: 100%; object-fit: cover; }
+    .card-content { padding: 20px; }
 
-        /* CONTAINER & GRID */
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 5%; }
-        .search-filter-zone { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
-        .search-box { width: 100%; padding: 14px 20px; border: 2px solid var(--border-color); outline: none; background-color: var(--white-pure); }
-        .tag-btn { background-color: var(--white-pure); border: 1px solid var(--border-color); padding: 8px 16px; cursor: pointer; font-weight: 600; }
-        .tag-btn.active { background-color: var(--navy-dark); color: var(--white-pure); }
-        
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .card { background-color: var(--white-pure); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); height: 100%; border-bottom: 3px solid transparent; transition: 0.2s; }
-        .card:hover { transform: translateY(-4px); border-bottom: 3px solid var(--yellow-solid); }
-        .card-banner { height: 180px; background: #e2e8f0; overflow: hidden; }
-        .card-img { width: 100%; height: 100%; object-fit: cover; }
-        .card-content { padding: 20px; }
-        .status-msg { text-align: center; color: #64748b; padding: 40px; grid-column: 1 / -1; }
-        #infinite-anchor { text-align: center; padding: 30px 0; font-weight: 600; color: #64748b; }
-
-        @media (min-width: 769px) {
-            header { padding: 10px 30px; top: 20px; left: 5%; right: 5%; width: 90%; }
-            .menu-toggle { display: none; }
-            nav { position: static; opacity: 1; visibility: visible; transform: none; background: none; padding: 0; display: block; }
-            nav ul { flex-direction: row; gap: 25px; }
-            .search-filter-zone { flex-direction: row; }
-            .search-box { width: 350px; }
-        }
-    </style>
+    /* 7. Responsive Desktop */
+    @media (min-width: 769px) {
+        header { padding: 15px 80px; }
+        .menu-toggle { display: none; }
+        nav { position: static; opacity: 1; visibility: visible; padding: 0; background: transparent; border: none; }
+        nav ul { flex-direction: row; gap: 30px; }
+        .search-filter-zone { flex-direction: row; align-items: center; }
+        .search-box { width: 400px; }
+    }
+</style>
 </head>
 <body>
 

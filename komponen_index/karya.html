@@ -4,114 +4,75 @@
     <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: transparent; overflow: hidden; }
-        
-        /* Container Utama */
-        .content-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            padding-bottom: 15px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        
-        /* Tautan pembungkus utama agar satu kartu penuh bisa diklik */
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { 
+            --maroon-dark: #4a0404; 
+            --gold-main: #ffcc00; 
+            --navy-dark: #1e293b; 
+            --desc-color: #64748b;
+            --white-pure: #ffffff; 
+            --border-color: #e2e8f0; 
         }
+        
+        body { margin: 0; font-family: 'Inter', sans-serif; background: transparent; overflow: hidden; }
+        
+        .content-wrapper { display: flex; flex-direction: column; gap: 30px; padding: 10px; }
+        
+        /* Header Seksi */
+        .section-header { margin-bottom: 10px; padding-left: 5px; }
+        .section-title { font-size: 1.8rem; color: var(--navy-dark); font-weight: 800; margin-bottom: 10px; }
+        .section-divider { width: 60px; height: 4px; background-color: var(--gold-main); border-radius: 2px; }
 
-        /* Gaya Kartu Lancip / Sharp */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+        .card-link { text-decoration: none; display: block; }
+
         .card {
-            background-color: #ffffff;
-            border-radius: 0px; 
+            background-color: var(--white-pure);
+            border-radius: 16px; 
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease;
-            border-bottom: 3px solid transparent;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             height: 100%;
         }
-        .card:hover { transform: translateY(-3px); border-bottom: 3px solid #ffcc00; }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px rgba(0,0,0,0.1); border-color: var(--gold-main); }
         
-        /* Wadah Gambar Sampul (Lancip) */
-        .card-banner {
-            width: 100%;
-            height: 160px;
-            overflow: hidden;
-            background-color: #e2e8f0; /* warna cadangan saat memuat gambar */
-        }
+        .card-banner { width: 100%; height: 200px; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .card:hover .card-img { transform: scale(1.08); }
+
+        .card-content { padding: 24px; flex-grow: 1; }
         
-        .card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 0px;
-            transition: transform 0.3s ease;
-        }
-        .card:hover .card-img {
-            transform: scale(1.05);
-        }
-
-        .card-content { padding: 20px; flex-grow: 1; }
-        .card-tag {
-            display: inline-block; background-color: rgba(255, 215, 0, 0.15); color: #b45309;
-            font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 0px; margin-bottom: 10px; text-transform: uppercase;
-        }
-        .card-title { font-size: 1.1rem; color: #0f172a; margin-bottom: 8px; font-weight: 700; }
+        .card-tag { display: inline-block; background-color: rgba(74, 4, 4, 0.08); color: var(--maroon-dark); font-size: 0.75rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
         
-        /* Batasi Ringkasan Menjadi Tepat 2 Baris Saja */
-        .card-desc { 
-            font-size: 0.9rem; 
-            color: #64748b;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;  
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .card-title { font-size: 1.2rem; color: var(--navy-dark); font-weight: 800; line-height: 1.3; margin-bottom: 12px; }
+        .card-divider { width: 40px; height: 2px; background-color: var(--gold-main); margin-bottom: 12px; border: none; }
+        
+        .card-desc { font-size: 0.9rem; color: var(--desc-color); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* Tombol Karya Selengkapnya di Bagian Bawah */
-        .action-zone {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .btn-more {
-            display: inline-block;
-            text-decoration: none;
-            background-color: #0f172a;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 0.9rem;
-            padding: 12px 24px;
-            border-radius: 0px; /* Desain tajam/lancip sesuai preferensi */
-            border: 2px solid #0f172a;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-        .btn-more:hover {
-            background-color: #ffcc00;
-            color: #0f172a;
-            border-color: #ffcc00;
-        }
+        .action-zone { display: flex; justify-content: center; width: 100%; }
+        .btn-more { display: inline-block; text-decoration: none; background-color: var(--maroon-dark); color: var(--white-pure); font-weight: 600; font-size: 0.95rem; padding: 14px 32px; border-radius: 30px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(74, 4, 4, 0.2); }
+        .btn-more:hover { background-color: var(--gold-main); color: var(--navy-dark); transform: scale(1.05); }
 
-        .status-msg { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+        .status-msg { text-align: center; color: var(--desc-color); padding: 40px; }
     </style>
 </head>
 <body>
 
     <div class="content-wrapper">
-        <!-- Area Grid Kartu -->
+        <div class="section-header">
+            <h2 class="section-title">Karya Santri</h2>
+            <div class="section-divider"></div>
+        </div>
+
         <div class="grid-3" id="karya-container">
             <div class="status-msg">Memuat karya santri...</div>
         </div>
 
-        <!-- Tombol Aksi Menuju Halaman Eksplorasi (Target _top agar halaman utama ikut berpindah) -->
         <div class="action-zone" id="action-zone" style="display: none;">
             <a href="eksplor-karya.html" target="_top" class="btn-more">Karya Selengkapnya</a>
         </div>
@@ -120,78 +81,51 @@
     <script type="module">
         import { supabase } from '../adlan_madjied_ridho/supa.js';
 
-        // Fungsi pembantu untuk mengirimkan tinggi dokumen ke halaman induk (index.html)
         function sendHeightToParent() {
             setTimeout(() => {
-                const bodyHeight = document.documentElement.scrollHeight;
-                window.parent.postMessage({
-                    type: 'resize-iframe',
-                    height: bodyHeight
-                }, '*');
-            }, 50); // Delay kecil untuk memastikan kalkulasi dimensi selesai
+                window.parent.postMessage({ type: 'resize-iframe', height: document.documentElement.scrollHeight }, '*');
+            }, 100);
         }
 
         async function loadKarya() {
             const container = document.getElementById('karya-container');
             const actionZone = document.getElementById('action-zone');
 
-            // 1. Tambahkan kolom 'gambar_url' dan 'slug' ke dalam select query
-            const { data: karyaList, error } = await supabase
+            const { data, error } = await supabase
                 .from('karya')
-                .select('id, judul, slug, ringkasan, tipe_karya, status, gambar_url, created_at')
+                .select('id, judul, slug, ringkasan, tipe_karya, gambar_url')
                 .or('status.eq.Publik,status.eq.publik')
                 .order('created_at', { ascending: false })
                 .limit(3);
 
-            if (error) {
-                container.innerHTML = `<div class="status-msg" style="color: #ef4444;">Gagal memuat karya.</div>`;
-                sendHeightToParent(); // Kirim tinggi pesan error
+            if (error || !data?.length) {
+                container.innerHTML = `<div class="status-msg">${error ? 'Gagal memuat karya.' : 'Belum ada karya diterbitkan.'}</div>`;
+                sendHeightToParent();
                 return;
             }
 
-            if (!karyaList || karyaList.length === 0) {
-                container.innerHTML = `<div class="status-msg">Belum ada karya santri yang diterbitkan.</div>`;
-                sendHeightToParent(); // Kirim tinggi pesan kosong
-                return;
-            }
-
-            container.innerHTML = '';
-            karyaList.forEach(item => {
-                // 2. Gunakan gambar default jika kolom gambar_url kosong di database
-                const coverImage = item.gambar_url || '/image/logo/logo.png';
-
-                // 3. Bungkus kartu dengan tag <a> dan target="_top" agar halaman induk (index.html) ikut berpindah tempat
-                const cardHTML = `
-                    <a href="detail/karya.html?slug=${item.slug}" target="_top" class="card-link">
-                        <div class="card" data-id="${item.id}">
-                            <div class="card-banner">
-                                <img src="${coverImage}" alt="${item.judul}" class="card-img" loading="lazy" onload="window.triggerIframeResize()">
-                            </div>
-                            <div class="card-content">
-                                <span class="card-tag">${item.tipe_karya || 'Karya'}</span>
-                                <h3 class="card-title">${item.judul}</h3>
-                                <p class="card-desc">${item.ringkasan || ''}</p>
-                            </div>
+            container.innerHTML = data.map(item => `
+                <a href="detail/karya.html?slug=${item.slug}" target="_top" class="card-link">
+                    <div class="card">
+                        <div class="card-banner">
+                            <img src="${item.gambar_url || '/image/logo/logo.png'}" class="card-img" onload="window.triggerIframeResize()">
                         </div>
-                    </a>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHTML);
-            });
+                        <div class="card-content">
+                            <span class="card-tag">${item.tipe_karya || 'Karya'}</span>
+                            <h3 class="card-title">${item.judul}</h3>
+                            <hr class="card-divider">
+                            <p class="card-desc">${item.ringkasan || ''}</p>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
 
-            // Tampilkan tombol selengkapnya jika karya berhasil dimuat
             actionZone.style.display = 'flex';
-
-            // Kirim tinggi pertama kali setelah struktur DOM selesai dibuat
             sendHeightToParent();
         }
 
-        // Ekspos fungsi ke objek window agar bisa dipanggil dari atribut onload HTML img
         window.triggerIframeResize = sendHeightToParent;
-
-        // Jalankan pemuatan data
         loadKarya();
-
-        // Antisipasi jika ada perubahan ukuran layar (resize window induk)
         window.addEventListener('resize', sendHeightToParent);
     </script>
 </body>

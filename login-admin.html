@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - IKSAJ</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --navy-dark: #0f172a;
+            --yellow-solid: #ffcc00;
+            --bg-blur: rgba(255, 255, 255, 0.08);
+            --text-light: #94a3b8;
+            --white-pure: #ffffff;
+            --radius: 20px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; 
+            background-color: var(--navy-dark); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            padding: 20px;
+        }
+
+        .login-card { 
+            background: var(--bg-blur); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 48px; 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            border-radius: var(--radius);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .logo-small { height: 64px; margin-bottom: 24px; }
+        h2 { color: var(--white-pure); margin-bottom: 32px; font-size: 1.75rem; letter-spacing: -0.5px; }
+
+        input { 
+            width: 100%; 
+            padding: 16px 20px; 
+            margin-bottom: 16px; 
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: var(--white-pure); 
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none; 
+            transition: all 0.3s;
+        }
+
+        input:focus { border-color: var(--yellow-solid); background: rgba(0,0,0,0.3); }
+
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 8px;
+            background-color: var(--yellow-solid); 
+            border: none; 
+            border-radius: 12px;
+            font-weight: 700; 
+            font-size: 1rem;
+            color: var(--navy-dark); 
+            cursor: pointer; 
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover { transform: scale(1.02); opacity: 0.9; }
+        button:disabled { background-color: var(--text-light); cursor: not-allowed; }
+
+        .back-link { margin-top: 24px; display: block; color: var(--text-light); text-decoration: none; font-size: 0.85rem; }
+        .back-link:hover { color: var(--white-pure); }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <img src="/image/logo/logo.png" alt="IKSAJ" class="logo-small">
+        <h2>Admin Panel</h2>
+        <input type="text" id="nia" placeholder="Nomor Induk Anggota">
+        <input type="password" id="password" placeholder="Kata Sandi">
+        <button id="login-btn">Masuk</button>
+        <a href="/index.html" class="back-link">← Kembali ke Beranda</a>
+    </div>
+
+    <script type="module">
+        import { supabase } from '/adlan_madjied_ridho/supa.js';
+
+        const loginBtn = document.getElementById('login-btn');
+        
+        loginBtn.addEventListener('click', async () => {
+            const nia = document.getElementById('nia').value;
+            const password = document.getElementById('password').value;
+
+            if (!nia || !password) {
+                alert('Mohon isi NIA dan Password');
+                return;
+            }
+
+            loginBtn.innerText = 'Memproses...';
+            loginBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabase
+                    .rpc('verify_admin', { 
+                        input_nia: nia, 
+                        input_password: password 
+                    });
+
+                if (error) throw error;
+
+                if (data === true) {
+                    localStorage.setItem('admin_logged_in', 'true');
+                    localStorage.setItem('admin_nia', nia);
+                    window.location.href = '/admin.html';
+                } else {
+                    alert('Akses ditolak: NIA atau Password salah.');
+                    loginBtn.innerText = 'Masuk';
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login Error:', error);
+                alert('Terjadi kesalahan koneksi.');
+                loginBtn.innerText = 'Masuk';
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

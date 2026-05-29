@@ -6,54 +6,84 @@
     <style>
         /* Reset & Base */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --yellow-solid: #ffcc00; --navy-dark: #0f172a; --text-light: #94a3b8; }
+        :root { 
+            --yellow-solid: #ffcc00; 
+            --navy-dark: #0f172a; 
+            --text-light: #94a3b8;
+            --white-pure: #ffffff;
+        }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--navy-dark); color: var(--text-light); }
 
         /* Footer Style */
-        footer { padding: 40px 5% 20px 5%; border-top: 4px solid var(--yellow-solid); }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
+        footer { padding: 50px 5% 20px 5%; border-top: 4px solid var(--yellow-solid); }
+        .footer-grid { 
+            max-width: 1200px; margin: 0 auto; 
+            display: grid; grid-template-columns: 1fr; gap: 40px; 
+            padding-bottom: 40px; border-bottom: 1px solid #334155; 
+        }
         
-        .footer-brand { display: flex; align-items: center; }
+        .footer-col h4 { color: var(--white-pure); margin-bottom: 15px; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 10px; }
+        
+        .footer-brand { display: flex; align-items: center; margin-bottom: 15px; }
         .footer-brand img { height: 40px; width: auto; }
-        .footer-brand strong { color: #fff; margin-left: 12px; font-size: 1.2rem; }
+        .footer-brand strong { color: var(--white-pure); margin-left: 12px; font-size: 1.2rem; }
         
-        .footer-links { display: flex; gap: 20px; font-size: 0.9rem; font-weight: 600; }
-        .footer-links a { color: #fff; text-decoration: none; }
+        .footer-links { display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; }
+        .footer-links a { color: var(--text-light); text-decoration: none; transition: 0.2s; }
         .footer-links a:hover { color: var(--yellow-solid); }
 
-        .footer-bottom { text-align: center; padding-top: 20px; font-size: 0.75rem; }
+        .footer-bottom { text-align: center; padding-top: 25px; font-size: 0.75rem; }
+        .credit { margin-top: 5px; color: #475569; }
+        .credit a { color: var(--yellow-solid); text-decoration: none; }
 
         @media (min-width: 769px) {
-            .footer-content { flex-direction: row; justify-content: space-between; }
+            .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <img src="../image/logo/logo.png" alt="IKSAJ Logo">
-                <strong>IKSAJ</strong>
+        <div class="footer-grid">
+            <!-- Kolom 1: Branding -->
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <img src="../image/logo/logo.png" alt="IKSAJ Logo">
+                    <strong>IKSAJ</strong>
+                </div>
+                <p>Ikatan Santri Annuqayah Jawa adalah wadah silaturahmi, pengembangan karya, dan syiar santri yang berdomisili di tanah Jawa. Kami berkomitmen menjaga tradisi dengan inovasi digital.</p>
             </div>
-            <div class="footer-links">
-                <a href="../index.html">Beranda</a>
-                <a href="../eksplor-berita.html">Eksplor Berita</a>
-                <a href="../eksplor-karya.html">Eksplor Karya</a>
+
+            <!-- Kolom 2: Navigasi -->
+            <div class="footer-col">
+                <h4>Menu Utama</h4>
+                <div class="footer-links">
+                    <a href="../index.html">Beranda</a>
+                    <a href="../komponen_index/eksplor-berita.html">Eksplor Berita</a>
+                    <a href="../komponen_index/eksplor-karya.html">Eksplor Karya</a>
+                </div>
+            </div>
+
+            <!-- Kolom 3: Kontak -->
+            <div class="footer-col">
+                <h4>Hubungi Kami</h4>
+                <p>Email: iksaj96@gmail.com</p>
+                <p>Lokasi: Jawa, Indonesia</p>
             </div>
         </div>
+
         <div class="footer-bottom">
             <p>&copy; 2026 Ikatan Santri Annuqayah Jawa. All Rights Reserved.</p>
+            <p class="credit">Developed by <strong>Adlan Madjied Ridho</strong></p>
         </div>
     </footer>
 
     <script>
-        // Mengirim tinggi konten ke parent agar iframe menyesuaikan secara otomatis
         function sendHeight() {
             const height = document.body.scrollHeight;
             window.parent.postMessage({ type: 'resize-iframe', height: height }, '*');
         }
-        
         window.addEventListener('load', sendHeight);
         window.addEventListener('resize', sendHeight);
     </script>

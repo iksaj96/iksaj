@@ -7,248 +7,102 @@
     <link rel="icon" type="image/png" href="image/logo/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Base Reset & Variables */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         :root {
-            --bg-content: #f8fafc;
-            --white-pure: #ffffff;
-            --navy-dark: #0f172a;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --yellow-solid: #ffcc00;
-            --yellow-hover: #e6b800;
-            --border-color: rgba(0, 0, 0, 0.06);
-            --success-color: #10b981;
-            --danger-color: #ef4444;
+            --bg-app: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-primary: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --accent-yellow: #ffcc00;
+            --danger-color: #ff3b30;
+            --radius-main: 20px;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-content);
-            color: var(--text-main);
-            padding: 24px;
-            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+            padding: 32px;
+            margin: 0;
         }
 
-        /* --- HEADER HALAMAN --- */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+        /* Header iOS */
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+        .page-title h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+        .page-title p { color: var(--text-secondary); margin-top: 4px; }
 
-        .page-title h1 {
-            color: var(--navy-dark);
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .page-title p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 2px;
-        }
-
-        /* --- TOMBOL TAMBAH (SHARP EDGES / LANCIP SEMI-ROUNDED) --- */
         .btn-add {
-            background-color: var(--navy-dark);
-            color: var(--white-pure);
-            border: none;
-            padding: 10px 20px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border-radius: 6px; /* Desain tegas, tidak terlalu bulat */
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background-color: #000;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
             text-decoration: none;
-            transition: opacity 0.2s;
+            display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s;
         }
+        .btn-add:hover { transform: scale(1.02); }
 
-        .btn-add:hover {
-            opacity: 0.9;
-        }
-
-        /* --- KONTROL PENCARIAN & FILTER --- */
+        /* Controls */
         .search-filter-bar {
-            background-color: var(--white-pure);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            background: var(--card-bg);
             padding: 16px;
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
-
         .search-input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            outline: none;
-            color: var(--text-main);
-        }
-
-        .search-input:focus {
-            border-color: var(--navy-dark);
-        }
-
-        /* --- SEKSI TABEL DATA --- */
-        .table-container {
-            background-color: var(--white-pure);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px;
-            overflow-x: auto;
-        }
-
-        table {
             width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            color: var(--navy-dark);
             padding: 12px 16px;
-            font-weight: 700;
-            border-bottom: 2px solid #e2e8f0;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px;
+            background: #f8f8f8;
+            font-size: 1rem;
         }
 
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Profil Anggota di Tabel */
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            background-color: #e2e8f0;
-        }
-
-        .user-name {
-            font-weight: 700;
-            color: var(--navy-dark);
-        }
-
-        .user-id {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* Badge Status */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 4px;
-        }
-
-        .status-active {
-            background-color: #dcfce7;
-            color: #15803d;
-        }
-
-        .status-inactive {
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
-
-        /* Tombol Aksi */
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-action {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.2s;
-        }
-
-        .btn-edit {
-            background-color: var(--yellow-solid);
-            color: var(--navy-dark);
-        }
-
-        .btn-edit:hover {
-            background-color: var(--yellow-hover);
-        }
-
-        .btn-delete {
-            background-color: transparent;
-            border-color: #cbd5e1;
-            color: var(--danger-color);
-        }
-
-        .btn-delete:hover {
-            background-color: #fee2e2;
-            border-color: #fca5a5;
-        }
-
-        .loading-text, .empty-text {
-            text-align: center;
+        /* Table iOS Style */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-main);
             padding: 20px;
-            color: var(--text-muted);
-            font-style: italic;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; padding: 12px 16px; text-align: left; }
+        td { padding: 16px; background: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        td:first-child { border-left: 1px solid #eee; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        td:last-child { border-right: 1px solid #eee; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        .user-profile { display: flex; align-items: center; gap: 16px; }
+        .user-avatar { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+        .user-name { font-weight: 600; }
+        .user-id { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .status-badge { padding: 6px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 8px; }
+        .status-active { background: #dcfce7; color: #15803d; }
+        .status-inactive { background: #fee2e2; color: #b91c1c; }
+
+        .btn-action { padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: none; }
+        .btn-edit { background: var(--accent-yellow); color: #000; text-decoration: none; }
+        .btn-delete { background: #f0f0f0; color: var(--danger-color); }
     </style>
 </head>
 <body>
 
-    <!-- HEADER KELOLA ANGGOTA -->
     <div class="page-header">
         <div class="page-title">
-            <h1>Manajemen Anggota</h1>
-            <p>Kelola berkas identitas, peran, dan status keaktifan seluruh anggota IKSAJ.</p>
+            <h1>Anggota</h1>
+            <p>Kelola data dan status anggota IKSAJ</p>
         </div>
         <a href="form/form-anggota.html" class="btn-add">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Tambah Anggota
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Baru
         </a>
     </div>
 
-    <!-- BILAH PENCARIAN -->
     <div class="search-filter-bar">
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari nama anggota, NIA, atau jabatan...">
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari nama atau NIA anggota...">
     </div>
 
-    <!-- TABEL DATA ANGGOTA -->
     <div class="table-container">
         <table>
             <thead>
@@ -261,125 +115,63 @@
                 </tr>
             </thead>
             <tbody id="anggotaTableBody">
-                <tr>
-                    <td colspan="5" class="loading-text">Memuat data anggota...</td>
-                </tr>
+                <tr><td colspan="5" class="loading-text">Memuat data...</td></tr>
             </tbody>
         </table>
     </div>
 
     <script type="module">
-        // Import koneksi Supabase dari direktori Anda
+        // Logika tetap sama seperti kode Anda sebelumnya
         import { supabase } from './adlan_madjied_ridho/supa.js';
-
+        
         const tableBody = document.getElementById('anggotaTableBody');
         const searchInput = document.getElementById('searchInput');
-        let allAnggota = []; // Menyimpan master data untuk pencarian lokal cepat
+        let allAnggota = [];
 
-        // Fungsi Memuat Data Anggota dari Supabase
         async function fetchAnggota() {
-            try {
-                const { data, error } = await supabase
-                    .from('anggota')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                allAnggota = data;
-                renderTable(allAnggota);
-
-            } catch (err) {
-                console.error('Gagal mengambil data:', err);
-                tableBody.innerHTML = `<tr><td colspan="5" class="empty-text" style="color: var(--danger-color)">Gagal memuat data: ${err.message}</td></tr>`;
-            }
+            const { data, error } = await supabase.from('anggota').select('*').order('created_at', { ascending: false });
+            if (error) return console.error(error);
+            allAnggota = data;
+            renderTable(allAnggota);
         }
 
-        // Fungsi Merender Baris Tabel
         function renderTable(dataList) {
-            if (dataList.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="empty-text">Tidak ada data anggota ditemukan.</td></tr>`;
-                return;
-            }
-
-            tableBody.innerHTML = '';
-            dataList.forEach(anggota => {
-                const tr = document.createElement('tr');
-                
-                // Set default avatar jika null
-                const avatar = anggota.avatar_url || 'https://via.placeholder.com/40';
-                
-                // Set class status badge
-                const statusClass = (anggota.status_aktif === 'Aktif') ? 'status-active' : 'status-inactive';
-                
-                tr.innerHTML = `
+            tableBody.innerHTML = dataList.map(anggota => `
+                <tr>
                     <td>
                         <div class="user-profile">
-                            <img src="${avatar}" alt="Avatar" class="user-avatar" onerror="this.src='https://via.placeholder.com/40'">
+                            <img src="${anggota.avatar_url || 'https://via.placeholder.com/44'}" class="user-avatar">
                             <div>
-                                <div class="user-name">${anggota.nama || '-'}</div>
-                                <div class="user-id">${anggota.nomor_hp || 'No Hp belum diset'}</div>
+                                <div class="user-name">${anggota.nama}</div>
+                                <div class="user-id">${anggota.nomor_hp || '-'}</div>
                             </div>
                         </div>
                     </td>
-                    <td>${anggota.nia || '-'}</td>
-                    <td>${anggota.jabatan || 'Anggota'}</td>
-                    <td><span class="status-badge ${statusClass}">${anggota.status_aktif || 'Aktif'}</span></td>
+                    <td>${anggota.nia}</td>
+                    <td>${anggota.jabatan}</td>
+                    <td><span class="status-badge ${anggota.status_aktif === 'Aktif' ? 'status-active' : 'status-inactive'}">${anggota.status_aktif}</span></td>
                     <td>
-                        <div class="action-btns">
+                        <div style="display:flex; gap:8px;">
                             <a href="form/form-anggota.html?id=${anggota.id}" class="btn-action btn-edit">Edit</a>
-                            <button class="btn-action btn-delete" data-id="${anggota.id}" data-nama="${anggota.nama}">Hapus</button>
+                            <button class="btn-action btn-delete" onclick="deleteAnggota('${anggota.id}', '${anggota.nama}')">Hapus</button>
                         </div>
                     </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-
-            // Gantung event handler untuk tombol hapus
-            attachDeleteEvents();
+                </tr>
+            `).join('');
         }
 
-        // Fungsi Filter Pencarian (Nama, NIA, Jabatan)
+        window.deleteAnggota = async (id, nama) => {
+            if (confirm(`Hapus ${nama}?`)) {
+                await supabase.from('anggota').delete().eq('id', id);
+                fetchAnggota();
+            }
+        };
+
         searchInput.addEventListener('input', (e) => {
-            const keyword = e.target.value.toLowerCase().trim();
-            const filtered = allAnggota.filter(anggota => {
-                const nama = (anggota.nama || '').toLowerCase();
-                const nia = (anggota.nia || '').toLowerCase();
-                const jabatan = (anggota.jabatan || '').toLowerCase();
-                return nama.includes(keyword) || nia.includes(keyword) || jabatan.includes(keyword);
-            });
-            renderTable(filtered);
+            const val = e.target.value.toLowerCase();
+            renderTable(allAnggota.filter(a => a.nama.toLowerCase().includes(val) || a.nia.toLowerCase().includes(val)));
         });
 
-        // Fungsi Menangani Aksi Hapus Anggota
-        function attachDeleteEvents() {
-            document.querySelectorAll('.btn-delete').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const id = button.getAttribute('data-id');
-                    const nama = button.getAttribute('data-nama');
-
-                    if (confirm(`Apakah Anda yakin ingin menghapus data anggota "${nama}"?`)) {
-                        try {
-                            const { error } = await supabase
-                                .from('anggota')
-                                .delete()
-                                .eq('id', id);
-
-                            if (error) throw error;
-
-                            alert('Data anggota berhasil dihapus!');
-                            fetchAnggota(); // Refresh data setelah berhasil dihapus
-
-                        } catch (err) {
-                            alert('Gagal menghapus data: ' + err.message);
-                            console.error(err);
-                        }
-                    }
-                });
-            });
-        }
-
-        // Inisialisasi awal saat halaman terbuka
         fetchAnggota();
     </script>
 </body>

@@ -4,278 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overview Dashboard - IKSAJ</title>
-    <link rel="icon" type="image/png" href="image/logo/logo.png">
     <style>
-        /* Base Reset & Variables */
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* Apple-Inspired Styling */
         :root {
-            --bg-content: #f8fafc;
-            --white-pure: #ffffff;
-            --navy-dark: #0f172a;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --yellow-accent: #ffcc00;
-            --yellow-light: rgba(255, 204, 0, 0.15);
-            --border-color: rgba(0, 0, 0, 0.05);
+            --bg-app: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-primary: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --accent-yellow: #ffcc00;
+            --radius-main: 24px;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-content);
-            color: var(--text-main);
-            padding: 24px;
-            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+            padding: 32px;
+            margin: 0;
         }
 
-        /* --- HEADER HALAMAN --- */
-        .dashboard-header {
-            margin-bottom: 24px;
-        }
+        .dashboard-header { margin-bottom: 32px; }
+        .dashboard-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+        .dashboard-header p { color: var(--text-secondary); font-size: 1.1rem; margin-top: 4px; }
 
-        .dashboard-header h1 {
-            color: var(--navy-dark);
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .dashboard-header p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 2px;
-        }
-
-        /* --- GRID KARTU STATISTIK --- */
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
 
         .stat-card {
-            background-color: var(--white-pure);
-            border: 1px solid var(--border-color);
-            border-radius: 12px; /* Sudut bulat halus */
-            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-main);
+            padding: 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        .stat-details h3 {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .stat-details .stat-number {
-            color: var(--navy-dark);
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-top: 4px;
-            line-height: 1;
-        }
-
+        .stat-details h3 { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-number { font-size: 2rem; font-weight: 700; margin-top: 8px; }
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            background-color: var(--yellow-light);
-            border-radius: 50%; /* Lingkaran bulat */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 56px; height: 56px;
+            background-color: #fff8e1;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
         }
+        .stat-icon svg { width: 28px; height: 28px; stroke: #b8860b; stroke-width: 2; fill: none; }
 
-        .stat-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: none;
-            stroke: var(--navy-dark);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        /* --- SEKSI AKTIVITAS TERBARU --- */
+        /* Table Section */
         .activity-section {
-            background-color: var(--white-pure);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-main);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        .section-title {
-            color: var(--navy-dark);
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; }
 
-        /* Desain Tabel Bulat */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { color: var(--text-secondary); font-size: 0.85rem; padding: 10px 16px; text-align: left; }
+        td { padding: 16px; background: #fafafa; }
+        td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: #f1f5f9;
-            color: var(--navy-dark);
-            padding: 12px 16px;
-            font-weight: 700;
-        }
-
-        th:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-        }
-
-        th:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f5f9;
-            color: var(--text-main);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Badge Status Bulat */
         .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 20px;
-            text-transform: uppercase;
+            padding: 6px 12px; font-size: 0.75rem; font-weight: 600;
+            border-radius: 10px; text-transform: uppercase;
         }
-
-        .badge-anggota { background-color: #e0f2fe; color: #0369a1; }
-        .badge-berita { background-color: #fef9c3; color: #a16207; }
-        .badge-karya { background-color: #dcfce7; color: #15803d; }
-
-        .activity-time {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
+        .badge-anggota { background: #e0f2fe; color: #0369a1; }
+        .badge-berita { background: #fef9c3; color: #a16207; }
+        .badge-karya { background: #dcfce7; color: #15803d; }
     </style>
 </head>
 <body>
 
-    <!-- HEADER DASHBOARD -->
     <div class="dashboard-header">
-        <h1>Selamat Datang, Admin</h1>
-        <p>Berikut adalah ringkasan data dan aktivitas terbaru di platform IKSAJ.</p>
+        <h1>Overview</h1>
+        <p>Ringkasan aktivitas platform IKSAJ</p>
     </div>
 
-    <!-- KARTU STATISTIK -->
     <div class="stats-grid">
-        <!-- Kartu Anggota -->
         <div class="stat-card">
             <div class="stat-details">
                 <h3>Total Anggota</h3>
                 <div class="stat-number">142</div>
             </div>
-            <div class="stat-icon">
-                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
         </div>
 
-        <!-- Kartu Berita -->
         <div class="stat-card">
             <div class="stat-details">
                 <h3>Artikel Berita</h3>
                 <div class="stat-number">48</div>
             </div>
-            <div class="stat-icon">
-                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            </div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         </div>
 
-        <!-- Kartu Karya -->
         <div class="stat-card">
             <div class="stat-details">
-                <h3>Karya Terpublikasi</h3>
+                <h3>Karya</h3>
                 <div class="stat-number">89</div>
             </div>
-            <div class="stat-icon">
-                <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            </div>
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
         </div>
     </div>
 
-    <!-- LOG AKTIVITAS TERBARU -->
     <div class="activity-section">
-        <div class="section-title">
-            <span>Aktivitas Manajemen Terbaru</span>
-        </div>
-        
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Aksi / Kegiatan</th>
-                        <th>Kategori</th>
-                        <th>Oleh</th>
-                        <th>Waktu</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Menambahkan Anggota Baru</strong> "Ahmad Fauzi"</td>
-                        <td><span class="badge badge-anggota">Anggota</span></td>
-                        <td>Admin Utama</td>
-                        <td class="activity-time">Baru saja</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Menerbitkan Berita</strong> "Persiapan Acara Bakti Sosial IKSAJ 2026"</td>
-                        <td><span class="badge badge-berita">Berita</span></td>
-                        <td>Editor Berita</td>
-                        <td class="activity-time">2 jam yang lalu</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Menyetujui Karya Seni</strong> "Lukisan Digital - Senja di Kota"</td>
-                        <td><span class="badge badge-karya">Karya</span></td>
-                        <td>Kurator</td>
-                        <td class="activity-time">Kemarin, 14:20</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Mengubah Data Profil Anggota</strong> "Siti Rahma"</td>
-                        <td><span class="badge badge-anggota">Anggota</span></td>
-                        <td>Admin Utama</td>
-                        <td class="activity-time">2 hari yang lalu</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Menghapus Berita Lama</strong> "Pengumuman Jadwal Libur Lebaran 2025"</td>
-                        <td><span class="badge badge-berita">Berita</span></td>
-                        <td>Admin Utama</td>
-                        <td class="activity-time">3 hari yang lalu</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <div class="section-title">Aktivitas Terbaru</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aksi</th>
+                    <th>Kategori</th>
+                    <th>Waktu</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Menambahkan Anggota</strong> "Ahmad Fauzi"</td>
+                    <td><span class="badge badge-anggota">Anggota</span></td>
+                    <td style="color: var(--text-secondary);">Baru saja</td>
+                </tr>
+                <tr>
+                    <td><strong>Menerbitkan Berita</strong> "Bakti Sosial 2026"</td>
+                    <td><span class="badge badge-berita">Berita</span></td>
+                    <td style="color: var(--text-secondary);">2 jam lalu</td>
+                </tr>
+                <tr>
+                    <td><strong>Menyetujui Karya</strong> "Senja di Kota"</td>
+                    <td><span class="badge badge-karya">Karya</span></td>
+                    <td style="color: var(--text-secondary);">Kemarin</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
 </body>
