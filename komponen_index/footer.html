@@ -4,41 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         /* Reset & Base */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root { 
+            --maroon-dark: #4a0404;
             --yellow-solid: #ffcc00; 
-            --navy-dark: #0f172a; 
-            --text-light: #94a3b8;
+            --text-light: #e2e8f0;
+            --desc-color: #94a3b8;
             --white-pure: #ffffff;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--navy-dark); color: var(--text-light); }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background-color: var(--maroon-dark); 
+            color: var(--text-light); 
+        }
 
         /* Footer Style */
-        footer { padding: 50px 5% 20px 5%; border-top: 4px solid var(--yellow-solid); }
-        .footer-grid { 
-            max-width: 1200px; margin: 0 auto; 
-            display: grid; grid-template-columns: 1fr; gap: 40px; 
-            padding-bottom: 40px; border-bottom: 1px solid #334155; 
+        footer { 
+            padding: 60px 5% 30px 5%; 
+            border-top: 4px solid var(--yellow-solid); 
         }
         
-        .footer-col h4 { color: var(--white-pure); margin-bottom: 15px; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-col p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 10px; }
+        .footer-grid { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 40px; 
+            padding-bottom: 40px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+        }
         
-        .footer-brand { display: flex; align-items: center; margin-bottom: 15px; }
-        .footer-brand img { height: 40px; width: auto; }
-        .footer-brand strong { color: var(--white-pure); margin-left: 12px; font-size: 1.2rem; }
+        .footer-col h4 { 
+            color: var(--yellow-solid); 
+            margin-bottom: 20px; 
+            font-size: 0.9rem; 
+            font-weight: 700;
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
         
-        .footer-links { display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; }
-        .footer-links a { color: var(--text-light); text-decoration: none; transition: 0.2s; }
-        .footer-links a:hover { color: var(--yellow-solid); }
+        .footer-col p { 
+            font-size: 0.85rem; 
+            line-height: 1.7; 
+            color: var(--text-light);
+        }
+        
+        .footer-brand { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        .footer-brand img { 
+            height: 42px; 
+            width: auto; 
+            object-fit: contain;
+        }
+        .footer-brand strong { 
+            color: var(--yellow-solid); 
+            margin-left: 14px; 
+            font-size: 1.3rem; 
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        
+        .footer-links { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            font-size: 0.9rem; 
+        }
+        .footer-links a { 
+            color: var(--text-light); 
+            text-decoration: none; 
+            transition: color 0.2s ease; 
+            font-weight: 500;
+        }
+        .footer-links a:hover { 
+            color: var(--yellow-solid); 
+        }
 
-        .footer-bottom { text-align: center; padding-top: 25px; font-size: 0.75rem; }
-        .credit { margin-top: 5px; color: #475569; }
-        .credit a { color: var(--yellow-solid); text-decoration: none; }
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 30px; 
+            font-size: 0.8rem; 
+            color: var(--desc-color);
+        }
+        .credit { 
+            margin-top: 8px; 
+            color: var(--desc-color); 
+            font-size: 0.75rem;
+        }
+        .credit strong { 
+            color: var(--white-pure); 
+            font-weight: 600;
+        }
 
         @media (min-width: 769px) {
-            .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+            .footer-grid { grid-template-columns: 2fr 1fr 1fr; gap: 60px; }
         }
     </style>
 </head>
@@ -46,7 +111,6 @@
 
     <footer>
         <div class="footer-grid">
-            <!-- Kolom 1: Branding -->
             <div class="footer-col">
                 <div class="footer-brand">
                     <img src="../image/logo/logo.png" alt="IKSAJ Logo">
@@ -55,7 +119,6 @@
                 <p>Ikatan Santri Annuqayah Jawa adalah wadah silaturahmi, pengembangan karya, dan syiar santri yang berdomisili di tanah Jawa. Kami berkomitmen menjaga tradisi dengan inovasi digital.</p>
             </div>
 
-            <!-- Kolom 2: Navigasi -->
             <div class="footer-col">
                 <h4>Menu Utama</h4>
                 <div class="footer-links">
@@ -65,11 +128,12 @@
                 </div>
             </div>
 
-            <!-- Kolom 3: Kontak -->
             <div class="footer-col">
                 <h4>Hubungi Kami</h4>
-                <p>Email: iksaj96@gmail.com</p>
-                <p>Lokasi: Jawa, Indonesia</p>
+                <div class="footer-links">
+                    <p style="margin-bottom: 8px;">Email: iksaj96@gmail.com</p>
+                    <p>Lokasi: Jawa, Indonesia</p>
+                </div>
             </div>
         </div>
 

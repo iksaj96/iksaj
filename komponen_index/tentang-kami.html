@@ -4,20 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --yellow-solid: #ffcc00; --navy-dark: #0f172a; --text-main: #334155; --bg-white: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: transparent; color: var(--text-main); line-height: 1.8; padding: 20px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-        .about-card { background: var(--bg-white); border: 1px solid #e2e8f0; padding: 40px; border-radius: 0px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .section-header { margin-bottom: 30px; border-left: 4px solid var(--yellow-solid); padding-left: 15px; }
-        .section-header h2 { font-size: 2rem; color: var(--navy-dark); font-weight: 800; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { 
+            --maroon-dark: #4a0404;
+            --gold-main: #ffcc00; 
+            --navy-dark: #1e293b; 
+            --text-main: #475569; 
+            --bg-white: #ffffff; 
+            --border-color: #e2e8f0;
+        }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background-color: transparent; 
+            color: var(--text-main); 
+            line-height: 1.8; 
+            padding: 10px 0; 
+        }
+
+        .about-card { 
+            background: var(--bg-white); 
+            border: 1px solid var(--border-color); 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); 
+        }
         
-        .content-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .content-block h3 { color: var(--navy-dark); margin-bottom: 10px; font-size: 1.2rem; }
-        .content-block p { font-size: 1rem; color: #475569; }
+        .section-header { 
+            margin-bottom: 35px; 
+            border-left: 4px solid var(--gold-main); 
+            padding-left: 16px; 
+        }
+        .section-header h2 { 
+            font-size: 1.8rem; 
+            color: var(--navy-dark); 
+            font-weight: 800; 
+            letter-spacing: -0.5px;
+        }
+        
+        .content-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 35px; 
+        }
+        
+        .content-block h3 { 
+            color: var(--maroon-dark); 
+            margin-bottom: 12px; 
+            font-size: 1.2rem; 
+            font-weight: 700;
+        }
+        .content-block p { 
+            font-size: 0.95rem; 
+            color: var(--text-main); 
+        }
 
         @media (min-width: 769px) {
-            .content-grid { grid-template-columns: 1fr 1fr; }
+            .content-grid { grid-template-columns: 1fr 1fr; gap: 50px; }
         }
     </style>
 </head>
