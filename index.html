@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKSAJ File Sharing - Portal Berbagi Berkas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    
+    <style>
+        :root {
+            --bg-body: #0b0f17;
+            --bg-surface: #111827;
+            --bg-subtle: #1f293d;
+            --border-subtle: #243049;
+            --border-hover: #374151;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-primary: #f59e0b;
+            --accent-hover: #d97706;
+            --accent-soft: rgba(245, 158, 11, 0.1);
+            --brand-blue: #2563eb;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 100;
+            background: var(--bg-body);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .logo span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-share-badge {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #ffffff;
+            background: var(--brand-blue);
+            padding: 3px 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+        }
+
+        /* Area Profil & Logout */
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            background: var(--bg-surface);
+            padding: 4px 12px 4px 5px;
+            border-radius: 30px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: #0b0f17;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .user-profile-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-profile-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-color);
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 95%;
+            margin: 0 auto;
+            padding: 80px 0.75rem 70px 0.75rem;
+            flex: 1;
+        }
+
+        .layout-wrapper {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            overflow: hidden;
+            position: sticky;
+            top: 75px;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header i {
+            color: var(--accent-primary);
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 0.6rem 0.85rem;
+            color: var(--text-main);
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-primary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-attach {
+            background: var(--bg-body);
+            border: 1px dashed var(--border-hover);
+            color: var(--text-muted);
+            padding: 0.65rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .btn-attach:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            background: var(--accent-soft);
+        }
+
+        .file-selected-name {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            display: none;
+            align-items: center;
+            gap: 6px;
+            word-break: break-all;
+            margin-top: 4px;
+        }
+
+        .card-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border-subtle);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-submit {
+            background: var(--accent-primary);
+            color: #0b0f17;
+            padding: 0.65rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        .upload-status {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            position: relative;
+            width: 260px;
+        }
+
+        .search-box input {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            padding: 0.5rem 0.85rem 0.5rem 2.2rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            outline: none;
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .table-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .data-table th {
+            background: var(--bg-body);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.775rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .file-info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 100%;
+        }
+
+        .file-main-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon-wrapper {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-name-link {
+            color: var(--text-main);
+            font-weight: 600;
+            text-decoration: none;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .file-name-link:hover {
+            color: var(--accent-primary);
+            text-decoration: underline;
+        }
+
+        .file-note-badge {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-primary);
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .file-note-badge i {
+            font-size: 0.75rem;
+            margin-top: 3px;
+            color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+        .badge-sender {
+            display: inline-block;
+            font-size: 0.8rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .text-subtle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .btn-action-download {
+            color: var(--accent-primary);
+            background: var(--accent-soft);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-action-download:hover {
+            background: var(--accent-primary);
+            color: #0b0f17;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .scroll-loader {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            z-index: 100;
+            background: var(--bg-body);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                position: static;
+            }
+            .search-box {
+                width: 100%;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-profile-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">
+            <img src="logo.png" alt="Logo IKSAJ" class="logo-img">
+            <span>IKSAJ <span class="logo-share-badge">SHARE</span></span>
+        </a>
+        <div class="user-nav">
+            <div class="user-profile">
+                <div class="avatar-circle" id="userAvatar">U</div>
+                <div class="user-profile-info">
+                    <span class="user-profile-name" id="userName">User</span>
+                </div>
+            </div>
+            <button class="btn-logout" id="btnLogout" onclick="handleLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="layout-wrapper">
+            
+            <form id="uploadForm" class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Unggah Berkas</span>
+                </div>
+                
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="uploaderInput">Pengirim / Jabatan</label>
+                        <input type="text" id="uploaderInput" class="form-control" placeholder="Nama atau posisi pengirim" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pilih File</label>
+                        <button type="button" class="btn-attach" onclick="document.getElementById('fileInput').click();">
+                            <i class="fa-solid fa-paperclip"></i> Pilih Berkas Komputer
+                        </button>
+                        <span id="fileSelectedName" class="file-selected-name">
+                            <i class="fa-solid fa-file"></i> <span id="fileNameText"></span>
+                        </span>
+                        <input type="file" id="fileInput" hidden required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subjectInput">Catatan Tambahan (Opsional)</label>
+                        <textarea id="subjectInput" class="form-control" placeholder="Keterangan singkat berkas..."></textarea>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div id="uploadStatus" class="upload-status">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Memproses unggahan...
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Berkas
+                    </button>
+                </div>
+            </form>
+
+            <div>
+                <div class="section-header">
+                    <span class="section-title">Berkas Terunggah</span>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchInput" placeholder="Cari nama, pengirim..." oninput="handleSearchInput()">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Berkas & Catatan</th>
+                                <th style="width: 180px;">Pengirim & Tgl</th>
+                                <th style="width: 100px; text-align: right;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fileListTable">
+                            <tr>
+                                <td colspan="3" class="empty-state">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Memuat data berkas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="scrollLoader" class="scroll-loader">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Memuat berkas tambahan...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 IKSAJ Share. Platform Berbagi Dokumen Internal. Made By Adlan Madjied Ridho.</p>
+    </footer>
+
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+        // --- Proteksi Autentikasi & Ambil Data Profil ---
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const email = session.user.email || 'Anggota';
+            const displayName = email.split('@')[0];
+            const initial = displayName.charAt(0).toUpperCase();
+
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userAvatar').textContent = initial;
+        }
+
+        checkAuth();
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function handleLogout() {
+            const confirmLogout = confirm('Apakah Anda yakin ingin keluar?');
+            if (confirmLogout) {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) {
+                    alert('Gagal logout: ' + error.message);
+                }
+            }
+        }
+        // ---------------------------
+
+        // Variable Paginasi & Infinite Scroll
+        const PAGE_SIZE = 10;
+        let currentPage = 0;
+        let isLoading = false;
+        let hasMore = true;
+        let currentSearchQuery = '';
+        let debounceTimer = null;
+
+        const fileInput = document.getElementById('fileInput');
+        const fileSelectedName = document.getElementById('fileSelectedName');
+        const fileNameText = document.getElementById('fileNameText');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const scrollLoader = document.getElementById('scrollLoader');
+
+        function escapeHTML(str) {
+            return String(str || '').replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameText.textContent = this.files[0].name;
+                fileSelectedName.style.display = 'inline-flex';
+            } else {
+                fileSelectedName.style.display = 'none';
+            }
+        });
+
+        // --- Fetch Files dengan Paginasi & Pencarian Supabase ---
+        async function fetchFiles(reset = false) {
+            if (isLoading) return;
+            if (!hasMore && !reset) return;
+
+            isLoading = true;
+            if (reset) {
+                currentPage = 0;
+                hasMore = true;
+                document.getElementById('fileListTable').innerHTML = `
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Memuat data berkas...
+                        </td>
+                    </tr>`;
+            } else {
+                scrollLoader.style.display = 'block';
+            }
+
+            const from = currentPage * PAGE_SIZE;
+            const to = from + PAGE_SIZE - 1;
+
+            let query = supabaseClient
+                .from('files')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (currentSearchQuery) {
+                query = query.or(`name.ilike.%${currentSearchQuery}%,uploader.ilike.%${currentSearchQuery}%,subject.ilike.%${currentSearchQuery}%`);
+            }
+
+            const { data, error } = await query.range(from, to);
+
+            isLoading = false;
+            scrollLoader.style.display = 'none';
+
+            if (error) {
+                console.error("Error fetching files:", error);
+                if (reset) {
+                    document.getElementById('fileListTable').innerHTML = `<tr><td colspan="3" class="empty-state" style="color:#ef4444;">Gagal memuat berkas. Periksa koneksi atau konfigurasi Supabase.</td></tr>`;
+                }
+                return;
+            }
+
+            if (data.length < PAGE_SIZE) {
+                hasMore = false;
+            }
+
+            renderFiles(data, reset);
+            currentPage++;
+        }
+
+        function renderFiles(files, isReset = false) {
+            const tableBody = document.getElementById('fileListTable');
+            
+            if (isReset && files.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="empty-state">Belum ada berkas yang ditemukan.</td></tr>`;
+                return;
+            }
+
+            const rowsHTML = files.map(file => {
+                const dateFormatted = new Date(file.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+
+                const displayUploader = escapeHTML(file.uploader || 'Anonim');
+                const fileNameEscaped = escapeHTML(file.name);
+                
+                const fileNote = file.subject 
+                    ? `<div class="file-note-badge"><i class="fa-regular fa-comment-dots"></i> <span>${escapeHTML(file.subject)}</span></div>` 
+                    : '';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="file-info-container">
+                                <div class="file-main-row">
+                                    <div class="file-icon-wrapper">
+                                        ${getFileIcon(file.name)}
+                                    </div>
+                                    <a href="${file.file_url}" target="_blank" rel="noopener noreferrer" class="file-name-link">${fileNameEscaped}</a>
+                                </div>
+                                ${fileNote}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-sender">${displayUploader}</span>
+                            <span class="text-subtle">${file.size || ''} • ${dateFormatted}</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="${file.file_url}" download target="_blank" rel="noopener noreferrer" class="btn-action-download">
+                                <i class="fa-solid fa-download"></i> Unduh
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (isReset) {
+                tableBody.innerHTML = rowsHTML;
+            } else {
+                tableBody.insertAdjacentHTML('beforeend', rowsHTML);
+            }
+        }
+
+        // --- Implementation Debounce Search ---
+        function handleSearchInput() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                currentSearchQuery = document.getElementById('searchInput').value.trim();
+                fetchFiles(true);
+            }, 300);
+        }
+
+        // --- Implementation Infinite Scroll ---
+        window.addEventListener('scroll', () => {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop + clientHeight >= scrollHeight - 150) {
+                fetchFiles(false);
+            }
+        });
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['pdf'].includes(ext)) {
+                return `<i class="fa-regular fa-file-pdf" style="color: #f87171;"></i>`;
+            } else if (['doc', 'docx'].includes(ext)) {
+                return `<i class="fa-regular fa-file-word" style="color: #60a5fa;"></i>`;
+            } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+                return `<i class="fa-regular fa-file-excel" style="color: #4ade80;"></i>`;
+            } else if (['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext)) {
+                return `<i class="fa-regular fa-file-image" style="color: #f59e0b;"></i>`;
+            } else if (['zip', 'rar', '7z'].includes(ext)) {
+                return `<i class="fa-regular fa-file-zipper" style="color: #c084fc;"></i>`;
+            } else {
+                return `<i class="fa-regular fa-file"></i>`;
+            }
+        }
+
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (fileInput.files.length === 0) {
+                alert('Silakan pilih berkas terlebih dahulu!');
+                return;
+            }
+
+            const uploaderVal = document.getElementById('uploaderInput').value.trim();
+            const subjectVal = document.getElementById('subjectInput').value.trim();
+            const file = fileInput.files[0];
+            
+            const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            const fileNameUnique = Date.now() + '_' + file.name;
+
+            uploadStatus.style.display = 'flex';
+
+            try {
+                const { data: storageData, error: storageError } = await supabaseClient
+                    .storage
+                    .from('files')
+                    .upload(fileNameUnique, file);
+
+                if (storageError) throw storageError;
+
+                const { data: publicUrlData } = supabaseClient
+                    .storage
+                    .from('files')
+                    .getPublicUrl(fileNameUnique);
+
+                const filePublicUrl = publicUrlData.publicUrl;
+
+                const { error: dbError } = await supabaseClient
+                    .from('files')
+                    .insert([
+                        {
+                            name: file.name,
+                            size: fileSize,
+                            file_url: filePublicUrl,
+                            uploader: uploaderVal,
+                            subject: subjectVal
+                        }
+                    ]);
+
+                if (dbError) throw dbError;
+
+                alert('Berkas berhasil dikirim!');
+                uploadForm.reset();
+                fileSelectedName.style.display = 'none';
+                fetchFiles(true);
+            } catch (err) {
+                console.error("Upload error:", err);
+                alert('Gagal mengirim berkas: ' + err.message);
+            } finally {
+                uploadStatus.style.display = 'none';
+            }
+        });
+
+        fetchFiles(true);
+    </script>
+</body>
+</html>
