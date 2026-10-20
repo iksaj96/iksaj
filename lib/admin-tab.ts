@@ -1,0 +1,1 @@
+export const TAB_FLAG = "iksaj_admin_tab";

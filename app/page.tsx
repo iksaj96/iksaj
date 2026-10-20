@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 
 const display = Bricolage_Grotesque({
@@ -15,14 +16,34 @@ const body = DM_Sans({
 
 /* ---------- DATA ---------- */
 
-const NAV = [
-  { id: "tentang", label: "Tentang" },
-  { id: "sejarah", label: "Sejarah" },
-  { id: "visi", label: "Visi & Misi" },
-  { id: "kegiatan", label: "Kegiatan" },
-  { id: "struktur", label: "Struktur" },
-  { id: "kontak", label: "Kontak" },
+type NavChild = { id: string; label: string; desc: string };
+type NavItem =
+  | { label: string; id: string }
+  | { label: string; children: NavChild[] };
+
+const NAV: NavItem[] = [
+  {
+    label: "Tentang",
+    children: [
+      { id: "tentang", label: "Tentang Kami", desc: "Mengenal IKSAJ" },
+      { id: "sejarah", label: "Sejarah", desc: "Perjalanan sejak 1996" },
+      { id: "visi", label: "Visi & Misi", desc: "Arah langkah organisasi" },
+      { id: "struktur", label: "Struktur", desc: "Susunan pengurus" },
+    ],
+  },
+  { label: "Kegiatan", id: "kegiatan" },
+  {
+    label: "Publikasi",
+    children: [
+      { id: "berita", label: "Berita", desc: "Kabar terbaru IKSAJ" },
+      { id: "karya", label: "Karya Tulis", desc: "Tulisan anggota" },
+      { id: "galeri", label: "Galeri", desc: "Dokumentasi kegiatan" },
+    ],
+  },
+  { label: "Kontak", id: "kontak" },
 ];
+
+const ADMIN_LOGIN_HREF = "/admin/login";
 
 const DAERAH = [
   "Jember",
@@ -106,6 +127,64 @@ const KEGIATAN = [
     rot: "rotate-2",
     bg: "bg-[#FFB000] text-[#14110a]",
   },
+];
+
+// DATA CONTOH: ganti dengan data asli (atau sambungkan ke database)
+const BERITA = [
+  {
+    judul: "Judul berita contoh pertama",
+    tanggal: "Tanggal berita",
+    kategori: "Organisasi",
+    ringkas:
+      "Ini adalah contoh ringkasan berita. Ganti dengan ringkasan berita IKSAJ yang sebenarnya.",
+  },
+  {
+    judul: "Judul berita contoh kedua",
+    tanggal: "Tanggal berita",
+    kategori: "Kegiatan",
+    ringkas:
+      "Ini adalah contoh ringkasan berita. Ganti dengan ringkasan berita IKSAJ yang sebenarnya.",
+  },
+  {
+    judul: "Judul berita contoh ketiga",
+    tanggal: "Tanggal berita",
+    kategori: "Pengumuman",
+    ringkas:
+      "Ini adalah contoh ringkasan berita. Ganti dengan ringkasan berita IKSAJ yang sebenarnya.",
+  },
+];
+
+// DATA CONTOH
+const KARYA = [
+  {
+    judul: "Judul karya tulis contoh pertama",
+    penulis: "Nama Penulis",
+    jenis: "Esai",
+  },
+  {
+    judul: "Judul karya tulis contoh kedua",
+    penulis: "Nama Penulis",
+    jenis: "Puisi",
+  },
+  {
+    judul: "Judul karya tulis contoh ketiga",
+    penulis: "Nama Penulis",
+    jenis: "Opini",
+  },
+  {
+    judul: "Judul karya tulis contoh keempat",
+    penulis: "Nama Penulis",
+    jenis: "Cerpen",
+  },
+];
+
+// DATA CONTOH: ganti `src` dengan foto asli bila sudah ada
+const GALERI = [
+  { judul: "Dokumentasi 1", ket: "Harlah", tone: "from-[#FFD21F] to-[#FFB000]", span: "sm:col-span-2 sm:row-span-2" },
+  { judul: "Dokumentasi 2", ket: "Bakti sosial", tone: "from-[#14110a] to-[#3a2f0b]", span: "" },
+  { judul: "Dokumentasi 3", ket: "Ngaji organisasi", tone: "from-[#FFB000] to-[#FFD21F]", span: "" },
+  { judul: "Dokumentasi 4", ket: "Sanggar Pelangi", tone: "from-[#3a2f0b] to-[#14110a]", span: "" },
+  { judul: "Dokumentasi 5", ket: "Safari Ramadan", tone: "from-[#FBF6E6] to-[#FFD21F]", span: "sm:col-span-2" },
 ];
 
 /* ---------- OBSERVER BERSAMA (1 observer untuk semua Reveal) ---------- */
@@ -220,13 +299,33 @@ function Logo({ size = 40 }: { size?: number }) {
   );
 }
 
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 20 20"
+      className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 8l5 5 5-5" />
+    </svg>
+  );
+}
+
 /* ---------- HALAMAN ---------- */
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [year, setYear] = useState<number | null>(null);
+  const [drop, setDrop] = useState<string | null>(null); // dropdown desktop
+  const [mobSub, setMobSub] = useState<string | null>(null); // accordion mobile
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLUListElement>(null);
 
   // tahun dibaca setelah render di browser (bukan saat prerender)
   useEffect(() => {
@@ -244,19 +343,49 @@ export default function Home() {
     return () => io.disconnect();
   }, []);
 
+  // tutup dropdown saat klik di luar atau tekan Escape
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setDrop(null);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDrop(null);
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const closeAll = () => {
+    setDrop(null);
+    setMenuOpen(false);
+    setMobSub(null);
+  };
+
   return (
     <div
-      className={`${display.variable} ${body.variable} relative min-h-screen bg-[#14110a] font-[family-name:var(--font-body)] text-[#FBF6E6] selection:bg-[#FFD21F] selection:text-[#14110a]`}
+      className={`${display.variable} ${body.variable} relative min-h-screen overflow-x-clip bg-[#14110a] font-[family-name:var(--font-body)] text-[#FBF6E6] selection:bg-[#FFD21F] selection:text-[#14110a]`}
     >
       <style>{`
+        html, body { overflow-x: clip; max-width: 100%; }
         html { scroll-behavior: smooth; }
+        section[id] { scroll-margin-top: 4.5rem; }
         @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         @keyframes draw { to { stroke-dashoffset: 0; } }
         @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes spin360 { to { transform: rotate(360deg); } }
         .marquee-track { animation: marquee 30s linear infinite; will-change: transform; }
         .rope { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw 3.2s ease-out 0.4s forwards; }
         .floaty { animation: floaty 6s ease-in-out infinite; will-change: transform; }
-        .spin-slow { animation: spin 24s linear infinite; will-change: transform; }
+        .spin-slow { animation: spin360 24s linear infinite; will-change: transform; }
         .outline-text { -webkit-text-stroke: 2px #FFD21F; color: transparent; }
         @media (prefers-reduced-motion: reduce) {
           html { scroll-behavior: auto; }
@@ -271,71 +400,185 @@ export default function Home() {
       {/* NAVBAR */}
       <header
         className={`fixed inset-x-0 top-0 z-40 transition-[padding,background-color] duration-300 ${
-          scrolled
+          scrolled || menuOpen
             ? "border-b border-[#FFD21F]/20 bg-[#14110a] py-3"
             : "bg-transparent py-5"
         }`}
       >
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-5">
-          <a href="#beranda" className="flex items-center gap-2.5">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5">
+          <a href="#beranda" onClick={closeAll} className="flex items-center gap-2.5">
             <Logo size={40} />
             <span className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
               IKSAJ
             </span>
           </a>
 
-          <ul className="hidden items-center gap-1 md:flex">
-            {NAV.map((n) => (
-              <li key={n.id}>
-                <a
-                  href={`#${n.id}`}
-                  className="rounded-full px-4 py-2 text-sm font-medium text-[#FBF6E6]/80 transition-colors hover:bg-[#FFD21F] hover:text-[#14110a]"
+          {/* menu desktop */}
+          <ul ref={navRef} className="hidden items-center gap-1 lg:flex">
+            {NAV.map((n) =>
+              "children" in n ? (
+                <li
+                  key={n.label}
+                  className="relative"
+                  onMouseEnter={() => setDrop(n.label)}
+                  onMouseLeave={() => setDrop(null)}
                 >
-                  {n.label}
-                </a>
-              </li>
-            ))}
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={drop === n.label}
+                    onClick={() => setDrop(drop === n.label ? null : n.label)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-[#FFD21F] hover:text-[#14110a] ${
+                      drop === n.label
+                        ? "bg-[#FFD21F] text-[#14110a]"
+                        : "text-[#FBF6E6]/80"
+                    }`}
+                  >
+                    {n.label}
+                    <Chevron open={drop === n.label} />
+                  </button>
+
+                  {drop === n.label && (
+                    <div className="absolute left-0 top-full pt-2">
+                      <ul
+                        role="menu"
+                        className="w-64 rounded-2xl border border-[#FFD21F]/30 bg-[#14110a] p-2 shadow-[6px_6px_0_0_#FFD21F]"
+                      >
+                        {n.children.map((c) => (
+                          <li key={c.id} role="none">
+                            <a
+                              role="menuitem"
+                              href={`#${c.id}`}
+                              onClick={closeAll}
+                              className="block rounded-xl px-4 py-2.5 transition-colors hover:bg-[#FFD21F] hover:text-[#14110a]"
+                            >
+                              <span className="block text-sm font-semibold">
+                                {c.label}
+                              </span>
+                              <span className="block text-xs opacity-60">
+                                {c.desc}
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              ) : (
+                <li key={n.id}>
+                  <a
+                    href={`#${n.id}`}
+                    onClick={closeAll}
+                    className="rounded-full px-4 py-2 text-sm font-medium text-[#FBF6E6]/80 transition-colors hover:bg-[#FFD21F] hover:text-[#14110a]"
+                  >
+                    {n.label}
+                  </a>
+                </li>
+              )
+            )}
           </ul>
 
-          <button
-            aria-label="Buka menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
-            className="grid h-10 w-10 place-items-center rounded-full border border-[#FFD21F]/50 md:hidden"
-          >
-            <span className="space-y-1.5">
-              <span
-                className={`block h-0.5 w-5 bg-[#FFD21F] transition-transform ${
-                  menuOpen ? "translate-y-2 rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`block h-0.5 w-5 bg-[#FFD21F] transition-opacity ${
-                  menuOpen ? "opacity-0" : ""
-                }`}
-              />
-              <span
-                className={`block h-0.5 w-5 bg-[#FFD21F] transition-transform ${
-                  menuOpen ? "-translate-y-2 -rotate-45" : ""
-                }`}
-              />
-            </span>
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={ADMIN_LOGIN_HREF}
+              className="hidden items-center gap-2 rounded-full border-2 border-[#FFD21F] px-5 py-2 text-sm font-bold text-[#FFD21F] transition-colors hover:bg-[#FFD21F] hover:text-[#14110a] lg:inline-flex"
+            >
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="4" y="11" width="16" height="9" rx="2" />
+                <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+              </svg>
+              Login Admin
+            </Link>
+
+            <button
+              aria-label="Buka menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+              className="grid h-10 w-10 place-items-center rounded-full border border-[#FFD21F]/50 lg:hidden"
+            >
+              <span className="space-y-1.5">
+                <span
+                  className={`block h-0.5 w-5 bg-[#FFD21F] transition-transform ${
+                    menuOpen ? "translate-y-2 rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-0.5 w-5 bg-[#FFD21F] transition-opacity ${
+                    menuOpen ? "opacity-0" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-0.5 w-5 bg-[#FFD21F] transition-transform ${
+                    menuOpen ? "-translate-y-2 -rotate-45" : ""
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
         </nav>
 
+        {/* menu mobile */}
         {menuOpen && (
-          <ul className="mx-5 mt-3 space-y-1 rounded-3xl border border-[#FFD21F]/30 bg-[#14110a] p-3 md:hidden">
-            {NAV.map((n) => (
-              <li key={n.id}>
-                <a
-                  href={`#${n.id}`}
-                  onClick={() => setMenuOpen(false)}
-                  className="block rounded-2xl px-4 py-3 text-sm font-medium hover:bg-[#FFD21F] hover:text-[#14110a]"
-                >
-                  {n.label}
-                </a>
-              </li>
-            ))}
+          <ul className="mx-5 mt-3 max-h-[calc(100vh-6rem)] space-y-1 overflow-y-auto rounded-3xl border border-[#FFD21F]/30 bg-[#14110a] p-3 lg:hidden">
+            {NAV.map((n) =>
+              "children" in n ? (
+                <li key={n.label}>
+                  <button
+                    type="button"
+                    aria-expanded={mobSub === n.label}
+                    onClick={() => setMobSub(mobSub === n.label ? null : n.label)}
+                    className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium hover:bg-[#FFD21F]/10"
+                  >
+                    {n.label}
+                    <Chevron open={mobSub === n.label} />
+                  </button>
+                  {mobSub === n.label && (
+                    <ul className="ml-4 mt-1 space-y-1 border-l border-[#FFD21F]/30 pl-3">
+                      {n.children.map((c) => (
+                        <li key={c.id}>
+                          <a
+                            href={`#${c.id}`}
+                            onClick={closeAll}
+                            className="block rounded-2xl px-4 py-2.5 text-sm text-[#FBF6E6]/80 hover:bg-[#FFD21F] hover:text-[#14110a]"
+                          >
+                            {c.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ) : (
+                <li key={n.id}>
+                  <a
+                    href={`#${n.id}`}
+                    onClick={closeAll}
+                    className="block rounded-2xl px-4 py-3 text-sm font-medium hover:bg-[#FFD21F] hover:text-[#14110a]"
+                  >
+                    {n.label}
+                  </a>
+                </li>
+              )
+            )}
+            <li className="pt-2">
+              <Link
+                href={ADMIN_LOGIN_HREF}
+                onClick={closeAll}
+                className="block rounded-2xl bg-[#FFD21F] px-4 py-3 text-center text-sm font-bold text-[#14110a]"
+              >
+                🔒 Login Admin
+              </Link>
+            </li>
           </ul>
         )}
       </header>
@@ -446,18 +689,20 @@ export default function Home() {
         </svg>
       </section>
 
-      {/* MARQUEE */}
-      <div className="-rotate-1 overflow-hidden border-y-4 border-[#14110a] bg-[#FFD21F] py-4 text-[#14110a]">
-        <div className="marquee-track flex w-max whitespace-nowrap">
-          {[...DAERAH, ...DAERAH].map((d, i) => (
-            <span
-              key={i}
-              className="mx-6 flex items-center gap-6 font-[family-name:var(--font-display)] text-2xl font-extrabold uppercase tracking-tight md:text-4xl"
-            >
-              {d}
-              <span className="text-xl">✦</span>
-            </span>
-          ))}
+      {/* MARQUEE: dibungkus overflow-hidden agar rotasi tidak memicu scroll horizontal */}
+      <div className="overflow-hidden py-3">
+        <div className="-ml-[3%] w-[106%] -rotate-1 border-y-4 border-[#14110a] bg-[#FFD21F] py-4 text-[#14110a]">
+          <div className="marquee-track flex w-max whitespace-nowrap">
+            {[...DAERAH, ...DAERAH].map((d, i) => (
+              <span
+                key={i}
+                className="mx-6 flex items-center gap-6 font-[family-name:var(--font-display)] text-2xl font-extrabold uppercase tracking-tight md:text-4xl"
+              >
+                {d}
+                <span className="text-xl">✦</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -643,11 +888,157 @@ export default function Home() {
         </div>
       </section>
 
+      {/* BERITA */}
+      <section id="berita" className="bg-[#FBF6E6] py-24 text-[#14110a]">
+        <div className="mx-auto max-w-6xl px-5">
+          <Reveal>
+            <SectionTag no="05" text="Berita" />
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 className="max-w-3xl font-[family-name:var(--font-display)] text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
+                Kabar terbaru dari <Marker>IKSAJ</Marker>.
+              </h2>
+              <a
+                href="#berita"
+                className="rounded-full border-2 border-[#14110a] px-5 py-2 text-sm font-bold transition-colors hover:bg-[#14110a] hover:text-[#FBF6E6]"
+              >
+                Semua berita →
+              </a>
+            </div>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {BERITA.map((b, i) => (
+              <Reveal key={b.judul} delay={i * 100}>
+                <article className="group flex h-full flex-col rounded-3xl border-2 border-[#14110a] bg-white p-6 shadow-[5px_5px_0_0_#FFD21F] transition-transform hover:-translate-y-1">
+                  <div className="mb-4 grid h-32 place-items-center rounded-2xl bg-[#FFD21F] font-[family-name:var(--font-display)] text-5xl font-extrabold">
+                    0{i + 1}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-widest">
+                    <span className="rounded-full bg-[#14110a] px-3 py-1 text-[#FFD21F]">
+                      {b.kategori}
+                    </span>
+                    <span className="text-[#14110a]/50">{b.tanggal}</span>
+                  </div>
+                  <h3 className="mt-4 font-[family-name:var(--font-display)] text-xl font-extrabold leading-snug">
+                    {b.judul}
+                  </h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-[#14110a]/70">
+                    {b.ringkas}
+                  </p>
+                  <span className="mt-5 text-sm font-bold">
+                    Baca selengkapnya{" "}
+                    <span className="inline-block transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </span>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="mt-8">
+            <p className="text-sm text-[#14110a]/50">
+              Contoh: berita di atas masih data sementara, nanti dikelola
+              melalui halaman admin.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* KARYA TULIS */}
+      <section id="karya" className="py-24">
+        <div className="mx-auto max-w-5xl px-5">
+          <Reveal>
+            <SectionTag no="06" text="Karya Tulis" dark />
+            <h2 className="max-w-3xl font-[family-name:var(--font-display)] text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
+              Goresan pena <span className="text-[#FFD21F]">para santri.</span>
+            </h2>
+            <p className="mt-5 max-w-2xl text-[#FBF6E6]/70">
+              Esai, puisi, opini, dan cerpen karya anggota IKSAJ.
+            </p>
+          </Reveal>
+
+          <ul className="mt-12 divide-y divide-[#FFD21F]/20 border-y border-[#FFD21F]/20">
+            {KARYA.map((k, i) => (
+              <li key={k.judul}>
+                <Reveal delay={i * 80}>
+                  <a
+                    href="#karya"
+                    className="group flex flex-wrap items-center gap-x-6 gap-y-2 py-6 transition-colors hover:bg-[#FFD21F]/5 sm:flex-nowrap"
+                  >
+                    <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#FFD21F] md:text-4xl">
+                      0{i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold leading-snug md:text-xl">
+                        {k.judul}
+                      </h3>
+                      <p className="text-sm text-[#FBF6E6]/60">
+                        Oleh {k.penulis}
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-[#FFD21F]/60 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#FFD21F]">
+                      {k.jenis}
+                    </span>
+                    <span className="text-xl text-[#FFD21F] transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </a>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+
+          <Reveal className="mt-8">
+            <p className="text-sm text-[#FBF6E6]/50">
+              Contoh: daftar karya di atas masih data sementara.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* GALERI */}
+      <section id="galeri" className="bg-[#FFD21F] py-24 text-[#14110a]">
+        <div className="mx-auto max-w-6xl px-5">
+          <Reveal>
+            <SectionTag no="07" text="Galeri" />
+            <h2 className="max-w-3xl font-[family-name:var(--font-display)] text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
+              Momen yang <span className="underline decoration-[#14110a] decoration-4 underline-offset-8">terekam.</span>
+            </h2>
+          </Reveal>
+
+          <div className="mt-12 grid auto-rows-[160px] gap-4 sm:grid-cols-2 md:auto-rows-[200px] lg:grid-cols-4">
+            {GALERI.map((g, i) => (
+              <Reveal key={g.judul} delay={i * 80} className={`${g.span} h-full`}>
+                <figure
+                  className={`group relative h-full overflow-hidden rounded-3xl border-2 border-[#14110a] bg-gradient-to-br ${g.tone}`}
+                >
+                  {/* ganti dengan <Image src="/galeri/foto.jpg" alt={g.judul} fill className="object-cover" /> */}
+                  <figcaption className="absolute inset-x-0 bottom-0 translate-y-2 bg-[#14110a]/90 p-4 text-[#FBF6E6] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <p className="font-[family-name:var(--font-display)] text-lg font-bold">
+                      {g.judul}
+                    </p>
+                    <p className="text-xs text-[#FBF6E6]/70">{g.ket}</p>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="mt-8">
+            <p className="text-sm text-[#14110a]/60">
+              Contoh: kotak warna di atas adalah tempat foto. Unggah dokumentasi
+              asli melalui halaman admin.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* STRUKTUR */}
       <section id="struktur" className="bg-[#FBF6E6] py-24 text-[#14110a]">
         <div className="mx-auto max-w-6xl px-5">
           <Reveal>
-            <SectionTag no="05" text="Struktur Organisasi" />
+            <SectionTag no="08" text="Struktur Organisasi" />
             <h2 className="max-w-3xl font-[family-name:var(--font-display)] text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
               Di bawah naungan <Marker>sistem ORDA</Marker> Lubangsa.
             </h2>
@@ -688,7 +1079,9 @@ export default function Home() {
         <div className="pointer-events-none absolute -bottom-48 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,210,31,0.18)_0%,rgba(255,210,31,0)_65%)]" />
         <div className="relative mx-auto max-w-4xl px-5 text-center">
           <Reveal>
-            <SectionTag no="06" text="Kontak" dark />
+            <div className="flex justify-center">
+              <SectionTag no="09" text="Kontak" dark />
+            </div>
             <h2 className="font-[family-name:var(--font-display)] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
               Mari <span className="text-[#FFD21F]">terhubung.</span>
             </h2>
