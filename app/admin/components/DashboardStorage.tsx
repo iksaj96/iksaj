@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import StorageDiagram, { type BucketUsage } from "../drive/components/StorageDiagram";
+import StorageDiagram, {
+  type BucketUsage,
+  type DbUsage,
+} from "./StorageDiagram";
 
 const PAGE_SIZE = 1000;
 
@@ -15,6 +18,9 @@ type StorageSnapshot = {
   drive: DriveUsage;
   usage: BucketUsage;
   usageError: boolean;
+  db: DbUsage | null;
+  dbError: boolean;
+  dbErrorMessage: string | null; // DEBUG
 };
 
 type LoadResult =
@@ -35,7 +41,7 @@ export default function DashboardStorage() {
 
   const loadSnapshot = useCallback(async (): Promise<LoadResult> => {
     try {
-      const [drive, usageResult] = await Promise.all([
+      const [drive, usageResult, dbResult] = await Promise.all([
         (async () => {
           const files: { is_folder: boolean; size: number | null }[] = [];
           for (let from = 0; ; from += PAGE_SIZE) {
@@ -62,7 +68,12 @@ export default function DashboardStorage() {
           );
         })(),
         supabase.rpc("storage_usage"),
+        supabase.rpc("get_db_size"),
       ]);
+
+      // DEBUG: hapus dua baris ini kalau sudah beres
+      if (dbResult.error) console.error("get_db_size gagal:", dbResult.error);
+      else console.log("get_db_size hasil:", dbResult.data);
 
       const usage: BucketUsage = {};
       if (!usageResult.error) {
@@ -78,8 +89,31 @@ export default function DashboardStorage() {
         }
       }
 
+      let db: DbUsage | null = null;
+      if (!dbResult.error && dbResult.data) {
+        const raw = dbResult.data as {
+          total: number | string;
+          tables?: Record<string, number | string>;
+        };
+        db = {
+          total: Number(raw.total) || 0,
+          tables: Object.entries(raw.tables ?? {})
+            .map(([name, bytes]) => ({ name, bytes: Number(bytes) || 0 }))
+            .sort((a, b) => b.bytes - a.bytes),
+        };
+      }
+
       return {
-        snapshot: { drive, usage, usageError: !!usageResult.error },
+        snapshot: {
+          drive,
+          usage,
+          usageError: !!usageResult.error,
+          db,
+          dbError: !!dbResult.error,
+          dbErrorMessage: dbResult.error
+            ? `${dbResult.error.code ?? ""} ${dbResult.error.message}`.trim()
+            : null,
+        },
         error: null,
       };
     } catch (loadError) {
@@ -111,7 +145,7 @@ export default function DashboardStorage() {
   return (
     <section
       aria-label="Penggunaan penyimpanan"
-      className="overflow-hidden rounded-3xl border border-[#FFD21F]/20 bg-[#14110a]/70"
+      className="h-full overflow-hidden rounded-3xl border border-[#FFD21F]/20 bg-[#14110a]/70"
     >
       <div className="flex items-center justify-between gap-3 border-b border-[#FBF6E6]/10 px-5 py-4">
         <div>
@@ -149,12 +183,21 @@ export default function DashboardStorage() {
         </p>
       )}
 
+      {/* DEBUG: tampilkan error asli get_db_size. Hapus blok ini kalau sudah beres */}
+      {snapshot?.dbErrorMessage && (
+        <p className="mx-4 mt-4 break-words rounded-xl border border-[#FFD21F]/40 bg-[#FFD21F]/10 px-3 py-2 font-mono text-[11px] leading-relaxed text-[#FFD21F]">
+          DEBUG get_db_size: {snapshot.dbErrorMessage}
+        </p>
+      )}
+
       {snapshot && (
         <StorageDiagram
           driveBytes={snapshot.drive.bytes}
           driveFiles={snapshot.drive.files}
           usage={snapshot.usage}
           usageError={snapshot.usageError}
+          db={snapshot.db}
+          dbError={snapshot.dbError}
           onRefresh={() => void refresh()}
         />
       )}

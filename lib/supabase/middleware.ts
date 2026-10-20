@@ -35,17 +35,12 @@ export async function updateSession(request: NextRequest) {
   const isAdminArea = path.startsWith("/admin");
   const isLoginPage = path === "/admin/login";
 
-  // belum login → paksa ke halaman login
+  // belum login → paksa ke halaman login.
+  // Halaman login sengaja TIDAK dialihkan di sini: keputusan ada di sisi klien,
+  // karena hanya klien yang tahu penanda tab (sessionStorage).
   if (isAdminArea && !isLoginPage && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
-  }
-
-  // sudah login tapi buka halaman login → arahkan ke dashboard
-  if (isLoginPage && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 

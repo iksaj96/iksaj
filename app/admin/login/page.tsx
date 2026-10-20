@@ -30,10 +30,37 @@ export default function LoginPage() {
   const userRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
 
-  // form langsung fokus ke username saat halaman dibuka
+  // fokus ke username; lalu putuskan: lanjut ke dashboard atau hanguskan sesi sisa
   useEffect(() => {
     userRef.current?.focus();
-  }, []);
+
+    let cancelled = false;
+    (async () => {
+      let flag: string | null = null;
+      try {
+        flag = sessionStorage.getItem(TAB_FLAG);
+      } catch {}
+
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+      if (cancelled || !data.user) return;
+
+      if (flag) {
+        // tab ini memang sedang login → langsung ke dashboard
+        router.replace("/admin");
+      } else {
+        // cookie sisa dari tab lama → hanguskan
+        await Promise.race([
+          supabase.auth.signOut({ scope: "local" }),
+          new Promise((r) => setTimeout(r, 1500)),
+        ]).catch(() => {});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   // jika pengguna mengetik "@" sendiri, anggap itu email lengkap
   const hasAt = username.includes("@");
