@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { body, display } from "./components/fonts";
 import { LandingStyles } from "./components/ui";
 import Navbar from "./components/Navbar";
@@ -13,9 +14,19 @@ const DAERAH = [
   "Lubangsa", "Guluk-Guluk", "Sumenep", "Annuqayah",
 ];
 
-export default async function Home() {
+async function LandingSections() {
   const { berita, karya, galeri } = await getLandingData();
 
+  return (
+    <>
+      <BeritaSection items={berita} />
+      <KaryaSection items={karya} />
+      <GaleriSection items={galeri} />
+    </>
+  );
+}
+
+export default function Home() {
   return (
     <div
       className={`${display.variable} ${body.variable} relative min-h-screen overflow-x-clip bg-[#14110a] font-[family-name:var(--font-body)] text-[#FBF6E6] selection:bg-[#FFD21F] selection:text-[#14110a]`}
@@ -41,9 +52,15 @@ export default async function Home() {
         </div>
       </div>
 
-      <BeritaSection items={berita} />
-      <KaryaSection items={karya} />
-      <GaleriSection items={galeri} />
+      <Suspense
+        fallback={
+          <div role="status" className="px-5 py-16 text-center text-[#FBF6E6]/60">
+            Memuat konten...
+          </div>
+        }
+      >
+        <LandingSections />
+      </Suspense>
       <Footer />
     </div>
   );
