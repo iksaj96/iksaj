@@ -1,6 +1,7 @@
 
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -221,7 +222,7 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function Navbar() {
+function NavbarContent() {
   const pathname = usePathname();
 
   const [scrolled, setScrolled] = useState(false);
@@ -650,5 +651,34 @@ export default function Navbar() {
         </div>
       </section>
     </>
+  );
+}
+
+function NavbarFallback() {
+  return (
+    <header
+      aria-label="Navigasi IKSAJ"
+      className="fixed inset-x-0 top-0 z-40 border-b border-[#FFD21F]/20 bg-[#14110a] py-3"
+    >
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <Logo size={40} className="bg-transparent" />
+          <span className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
+            IKSAJ
+          </span>
+        </Link>
+        <span className="text-xs font-semibold tracking-wider text-[#FBF6E6]/50">
+          ANNUQAYAH
+        </span>
+      </nav>
+    </header>
+  );
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={<NavbarFallback />}>
+      <NavbarContent />
+    </Suspense>
   );
 }
