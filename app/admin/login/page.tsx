@@ -136,7 +136,7 @@ export default function LoginPage() {
         </Link>
 
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#FBF6E6] p-1">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full p-1">
             <Image
               src="/logo.png"
               alt="Logo IKSAJ"
@@ -267,7 +267,7 @@ export default function LoginPage() {
             Masuk untuk mengelola berita, karya tulis, dan galeri IKSAJ.
           </p>
 
-          <form onSubmit={onSubmit} className="mt-8">
+          <form onSubmit={onSubmit} autoComplete="off" className="mt-8">
             <label className="block text-sm font-semibold" htmlFor="username">
               Username
             </label>
@@ -279,7 +279,7 @@ export default function LoginPage() {
                 type="text"
                 required
                 autoFocus
-                autoComplete="username"
+                autoComplete="off"
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
@@ -315,7 +315,7 @@ export default function LoginPage() {
                 name="password"
                 type={showPw ? "text" : "password"}
                 required
-                autoComplete="current-password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"

@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     agentFeedback: true,
+    serverActions: {
+      allowedOrigins: ["localhost:3000", "*.app.github.dev"],
+    },
   },
   cacheComponents: true,
   partialPrefetching: true,
