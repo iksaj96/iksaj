@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DashboardStorage from "./components/DashboardStorage";
@@ -9,7 +8,7 @@ const CONTENT_AREAS = [
     description: "Kabar terbaru dan kegiatan IKSAJ.",
     href: "/admin/berita",
     number: "01",
-    icon: "✳",
+    icon: "news",
     accent: "text-[#FFD21F]",
     glow: "group-hover:bg-[#FFD21F]/[0.07]",
   },
@@ -18,7 +17,7 @@ const CONTENT_AREAS = [
     description: "Tulisan, ide, dan cerita anggota.",
     href: "/admin/karya",
     number: "02",
-    icon: "↗",
+    icon: "book",
     accent: "text-[#FBF6E6]",
     glow: "group-hover:bg-[#FBF6E6]/[0.05]",
   },
@@ -27,11 +26,11 @@ const CONTENT_AREAS = [
     description: "Foto dan dokumentasi kegiatan.",
     href: "/admin/galeri",
     number: "03",
-    icon: "▧",
+    icon: "gallery",
     accent: "text-[#F97316]",
     glow: "group-hover:bg-[#F97316]/[0.06]",
   },
-];
+] as const;
 
 function ArrowIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -58,10 +57,186 @@ function SparkIcon() {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className="h-5 w-5"
     >
       <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z" />
     </svg>
+  );
+}
+
+function ContentIcon({ name }: { name: (typeof CONTENT_AREAS)[number]["icon"] }) {
+  const commonProps = {
+    "aria-hidden": true as const,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    className: "h-5 w-5",
+  };
+
+  switch (name) {
+    case "news":
+      return (
+        <svg {...commonProps}>
+          <path d="M4 4.5h12a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2V4.5Z" />
+          <path d="M18 8h2a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2" />
+          <path d="M8 9h5M8 13h8M8 16.5h6" />
+          <path d="M8 6.8h5" />
+        </svg>
+      );
+
+    case "book":
+      return (
+        <svg {...commonProps}>
+          <path d="M12 7v14" />
+          <path d="M12 7C9.5 4.8 6.5 4.2 3 5v14c3.5-.8 6.5-.2 9 2" />
+          <path d="M12 7c2.5-2.2 5.5-2.8 9-2v14c-3.5-.8-6.5-.2-9 2" />
+          <path d="M6 9h2M6 12h3M16 9h2M15 12h3" />
+        </svg>
+      );
+
+    case "gallery":
+      return (
+        <svg {...commonProps}>
+          <rect x="3" y="3" width="18" height="18" rx="2.5" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="m21 15-5-5L5 21" />
+          <path d="m12 21 4-4" />
+        </svg>
+      );
+  }
+}
+
+function DeveloperSupport() {
+  return (
+    <section
+      aria-labelledby="developer-support-title"
+      className="dashboard-enter relative isolate overflow-hidden rounded-lg border border-[#FFD21F]/20 bg-[#1c190f] p-4 sm:p-5"
+      style={{ animationDelay: "340ms" }}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-12 -z-10 h-36 w-36 rounded-full border-[18px] border-[#FFD21F]/[0.05] sm:h-44 sm:w-44"
+      />
+
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#FFD21F]/20 bg-[#FFD21F]/[0.08] text-[#FFD21F]">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
+            <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z" />
+          </svg>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-[9px] font-extrabold uppercase tracking-[0.22em] text-[#FFD21F]/70">
+            Bantuan & dukungan
+          </p>
+
+          <h2
+            id="developer-support-title"
+            className="mt-1 font-[family-name:var(--font-display)] text-lg font-extrabold text-[#FBF6E6] sm:text-xl"
+          >
+            Mengalami kendala?
+          </h2>
+
+          <p className="mt-2 max-w-2xl text-xs leading-6 text-[#FBF6E6]/60 sm:text-sm">
+            Jika mengalami kendala atau membutuhkan bantuan terkait
+            website IKSAJ, silakan hubungi pengembang melalui situs
+            web pengembang. Gunakan akun berikut untuk masuk ke fitur
+            chat yang tersedia.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-[#FBF6E6]/10 bg-[#14110a]/60 p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FBF6E6]/40">
+          Informasi akun chat
+        </p>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <p className="text-[10px] text-[#FBF6E6]/40">Username</p>
+            <p className="mt-1 break-all font-mono text-sm font-semibold text-[#FBF6E6]">
+              iksaj
+            </p>
+          </div>
+
+          <div>
+            <p className="text-[10px] text-[#FBF6E6]/40">Password</p>
+            <p className="mt-1 break-all font-mono text-sm font-semibold text-[#FBF6E6]">
+              lubangsa
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-3 text-[10px] leading-relaxed text-[#FBF6E6]/35">
+          Informasi akun ini dapat dilihat oleh pengguna dashboard.
+          Pastikan akun tersebut memang disiapkan khusus untuk
+          keperluan bantuan pengembang.
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-bold text-[#FBF6E6]">
+            Adlan Madjied Ridho
+          </p>
+          <p className="mt-1 text-[10px] text-[#FBF6E6]/40">
+            Pengembang website IKSAJ
+          </p>
+        </div>
+
+        <Link
+          href="https://adlanmr.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#FFD21F] px-4 py-2.5 text-xs font-extrabold text-[#14110a] transition duration-200 hover:-translate-y-0.5 hover:bg-[#ffe36a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD21F] active:translate-y-0"
+        >
+          Hubungi Pengembang
+          <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function DeveloperCredit() {
+  return (
+    <footer
+      className="dashboard-enter border-t border-[#FBF6E6]/[0.08] pt-4"
+      style={{ animationDelay: "400ms" }}
+    >
+      <div className="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+        <p className="text-[10px] leading-relaxed text-[#FBF6E6]/35">
+          Dikembangkan oleh{" "}
+          <span className="font-semibold text-[#FBF6E6]/60">
+            Adlan Madjied Ridho
+          </span>
+        </p>
+
+        <a
+          href="https://adlanmr.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-1 text-[10px] font-semibold text-[#FFD21F]/70 transition hover:text-[#FFD21F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD21F] sm:justify-end"
+        >
+          adlanmr.vercel.app
+          <ArrowIcon className="h-3 w-3" />
+        </a>
+      </div>
+    </footer>
   );
 }
 
@@ -220,9 +395,9 @@ export default async function AdminHome() {
                   />
 
                   <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#FBF6E6]/10 bg-[#FBF6E6]/[0.03] font-[family-name:var(--font-display)] text-base font-black transition duration-300 group-hover:rotate-[-4deg] group-hover:border-[#FFD21F]/25 group-hover:bg-[#FFD21F]/10 ${area.accent}`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#FBF6E6]/10 bg-[#FBF6E6]/[0.03] transition duration-300 group-hover:rotate-[-4deg] group-hover:border-[#FFD21F]/25 group-hover:bg-[#FFD21F]/10 ${area.accent}`}
                   >
-                    {area.icon}
+                    <ContentIcon name={area.icon} />
                   </span>
 
                   <span className="min-w-0 flex-1">
@@ -264,6 +439,12 @@ export default async function AdminHome() {
             <DashboardStorage />
           </section>
         </div>
+
+        {/* Bantuan pengembang */}
+        <DeveloperSupport />
+
+        {/* Kredit pengembang */}
+        <DeveloperCredit />
       </div>
     </main>
   );

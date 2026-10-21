@@ -15,7 +15,6 @@ type IconName =
   | "image"
   | "drive"
   | "structure"
-  | "members"
   | "globe"
   | "logout"
   | "close";
@@ -47,12 +46,6 @@ const ICONS: Record<IconName, string[]> = {
     "M18 8v5",
     "M3 13h6v6H3z",
     "M15 13h6v6h-6z",
-  ],
-  members: [
-    "M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2",
-    "M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
-    "M20 8v6",
-    "M23 11h-6",
   ],
   globe: [
     "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z",
@@ -114,8 +107,7 @@ function MovingText({
     if (!container || !content) return;
 
     const measure = () => {
-      const excess =
-        content.scrollWidth - container.clientWidth;
+      const excess = content.scrollWidth - container.clientWidth;
 
       setOverflow(excess > 2);
       setDistance(Math.max(0, excess));
@@ -170,7 +162,6 @@ const MENU: {
   { href: "/admin/galeri", label: "Galeri", icon: "image" },
   { href: "/admin/drive", label: "IKSAJ Drive", icon: "drive" },
   { href: "/admin/struktur", label: "Struktur", icon: "structure" },
-  { href: "/admin/anggota", label: "Anggota", icon: "members" },
 ];
 
 function SidebarBody({
@@ -361,12 +352,10 @@ function SidebarBody({
       {/* AKUN DAN IKON KELUAR */}
       <div className="shrink-0 border-t border-[#FFD21F]/15 p-3 sm:p-4">
         <div className="flex min-w-0 items-center gap-2 rounded-xl px-1 py-2">
-          {/* Avatar */}
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#FFD21F] font-[family-name:var(--font-display)] text-base font-black uppercase text-[#14110a]">
             {username.charAt(0)}
           </span>
 
-          {/* Nama dan email dengan animasi jika terpotong */}
           <div className="min-w-0 flex-1">
             <MovingText
               text={username}
@@ -379,12 +368,15 @@ function SidebarBody({
             />
           </div>
 
-          {/* Ikon keluar di kanan */}
           <button
             type="button"
             onClick={logout}
             disabled={loggingOut}
-            aria-label={loggingOut ? "Sedang keluar dari akun" : "Keluar dari akun"}
+            aria-label={
+              loggingOut
+                ? "Sedang keluar dari akun"
+                : "Keluar dari akun"
+            }
             title={loggingOut ? "Sedang keluar..." : "Keluar dari akun"}
             className="group grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#FFD21F]/25 text-[#FFD21F] transition-colors hover:border-[#FFD21F] hover:bg-[#FFD21F] hover:text-[#14110a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD21F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#14110a] disabled:cursor-wait disabled:opacity-50"
           >
@@ -411,7 +403,10 @@ function SidebarBody({
                 />
               </svg>
             ) : (
-              <Icon name="logout" className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5" />
+              <Icon
+                name="logout"
+                className="h-[18px] w-[18px] transition-transform group-hover:translate-x-0.5"
+              />
             )}
           </button>
         </div>
